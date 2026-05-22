@@ -18,7 +18,7 @@ interface DiffViewProps {
   language: string;
   onAccept: () => void;
   onReject: () => void;
-  status: 'pending' | 'applied' | 'rejected';
+  status: 'pending' | 'applied' | 'rejected' | 'completed' | 'error';
 }
 
 export const DiffView: React.FC<DiffViewProps> = ({
@@ -30,9 +30,15 @@ export const DiffView: React.FC<DiffViewProps> = ({
   status,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [oldContent, setOldContent] = useState<string>('');
   const { getFileContent } = useFileSystemStore();
 
-  const oldContent = getFileContent(filePath) || '';
+  React.useEffect(() => {
+    getFileContent(filePath).then((content) => {
+      setOldContent(content || '');
+    });
+  }, [filePath, getFileContent]);
+
   const fileName = filePath.split('/').pop() || filePath;
 
   const diffLines = useMemo(

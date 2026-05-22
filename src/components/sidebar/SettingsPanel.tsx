@@ -265,122 +265,215 @@ export const SettingsPanel: React.FC = () => {
         ) : (
           /* ===== AI Settings Category ===== */
           <div className="space-y-4 animate-slide-up">
-            {/* Ollama Endpoint */}
+            {/* AI Provider Select */}
             <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <label className="text-[11px] font-semibold text-editor-text block">
-                  Ollama Endpoint
-                </label>
+              <label className="text-[11px] font-semibold text-editor-text block">
+                AI Provider
+              </label>
+              <div className="grid grid-cols-2 gap-2 p-1 bg-editor-surface rounded-lg border border-editor-border">
                 <button
-                  onClick={handleTestConnection}
-                  disabled={isCheckingConnection}
-                  className="text-[10px] text-editor-accent hover:underline flex items-center gap-1 disabled:opacity-50"
+                  onClick={() => {
+                    updateAISetting('provider', 'ollama');
+                    const endpoint = ai.ollamaEndpoint;
+                    useChatStore.getState().setEndpoint(endpoint);
+                    setTimeout(() => {
+                      useChatStore.getState().checkConnection();
+                    }, 50);
+                  }}
+                  className={`py-1.5 text-xs font-semibold rounded-md transition-all ${
+                    ai.provider === 'ollama'
+                      ? 'bg-editor-accent text-white shadow-sm'
+                      : 'text-editor-muted hover:text-editor-text hover:bg-editor-hover/30'
+                  }`}
                 >
-                  {isCheckingConnection ? (
-                    <RefreshCw size={10} className="animate-spin" />
-                  ) : testSuccess ? (
-                    <Check size={10} className="text-editor-success" />
-                  ) : (
-                    'Test'
-                  )}
+                  Ollama
+                </button>
+                <button
+                  onClick={() => {
+                    updateAISetting('provider', 'lmstudio');
+                    const endpoint = ai.lmStudioEndpoint;
+                    useChatStore.getState().setEndpoint(endpoint);
+                    setTimeout(() => {
+                      useChatStore.getState().checkConnection();
+                    }, 50);
+                  }}
+                  className={`py-1.5 text-xs font-semibold rounded-md transition-all ${
+                    ai.provider === 'lmstudio'
+                      ? 'bg-editor-accent text-white shadow-sm'
+                      : 'text-editor-muted hover:text-editor-text hover:bg-editor-hover/30'
+                  }`}
+                >
+                  LM Studio
                 </button>
               </div>
-              <input
-                type="text"
-                value={ai.ollamaEndpoint}
-                onChange={(e) => {
-                  updateAISetting('ollamaEndpoint', e.target.value);
-                  // Update chat store endpoint too
-                  useChatStore.getState().setEndpoint(e.target.value);
-                }}
-                placeholder="http://localhost:11434"
-                className="w-full px-2.5 py-1.5 bg-editor-surface border border-editor-border rounded-md text-xs text-editor-text outline-none focus:border-editor-accent/40 font-mono"
-              />
-              {connectionError ? (
-                <div className="flex items-center gap-1 text-[9px] text-editor-error mt-0.5">
-                  <AlertCircle size={10} />
-                  Not reachable
-                </div>
-              ) : isConnected ? (
-                <div className="flex items-center gap-1 text-[9px] text-editor-success mt-0.5">
-                  <Check size={10} />
-                  Connected
-                </div>
-              ) : null}
             </div>
 
-            {/* Direct GGUF Inference */}
-            <div className="space-y-2 pt-2 border-t border-editor-border/20">
-              <label className="text-[11px] font-semibold text-editor-text block">
-                Local .gguf Model Loader (llama.cpp)
-              </label>
-              
-              {ggufModelPath ? (
-                <div className="p-2.5 rounded-lg bg-editor-surface border border-editor-border space-y-2">
-                  <div className="flex items-start gap-1.5 min-w-0">
-                    <Bot size={14} className="text-editor-accent flex-shrink-0 mt-0.5" />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[10px] text-editor-muted uppercase tracking-wider font-semibold">Active Model</div>
-                      <div className="text-xs text-editor-text font-mono truncate" title={ggufModelPath}>
-                        {ggufModelPath.split('/').pop()}
+            {/* Provider-specific Endpoint */}
+            {ai.provider === 'ollama' ? (
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label className="text-[11px] font-semibold text-editor-text block">
+                    Ollama Endpoint
+                  </label>
+                  <button
+                    onClick={handleTestConnection}
+                    disabled={isCheckingConnection}
+                    className="text-[10px] text-editor-accent hover:underline flex items-center gap-1 disabled:opacity-50"
+                  >
+                    {isCheckingConnection ? (
+                      <RefreshCw size={10} className="animate-spin" />
+                    ) : testSuccess ? (
+                      <Check size={10} className="text-editor-success" />
+                    ) : (
+                      'Test'
+                    )}
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={ai.ollamaEndpoint}
+                  onChange={(e) => {
+                    updateAISetting('ollamaEndpoint', e.target.value);
+                    useChatStore.getState().setEndpoint(e.target.value);
+                  }}
+                  placeholder="http://localhost:11434"
+                  className="w-full px-2.5 py-1.5 bg-editor-surface border border-editor-border rounded-md text-xs text-editor-text outline-none focus:border-editor-accent/40 font-mono"
+                />
+                {connectionError ? (
+                  <div className="flex items-center gap-1 text-[9px] text-editor-error mt-0.5">
+                    <AlertCircle size={10} />
+                    Not reachable
+                  </div>
+                ) : isConnected ? (
+                  <div className="flex items-center gap-1 text-[9px] text-editor-success mt-0.5">
+                    <Check size={10} />
+                    Connected
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label className="text-[11px] font-semibold text-editor-text block">
+                    LM Studio Endpoint
+                  </label>
+                  <button
+                    onClick={handleTestConnection}
+                    disabled={isCheckingConnection}
+                    className="text-[10px] text-editor-accent hover:underline flex items-center gap-1 disabled:opacity-50"
+                  >
+                    {isCheckingConnection ? (
+                      <RefreshCw size={10} className="animate-spin" />
+                    ) : testSuccess ? (
+                      <Check size={10} className="text-editor-success" />
+                    ) : (
+                      'Test'
+                    )}
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={ai.lmStudioEndpoint}
+                  onChange={(e) => {
+                    updateAISetting('lmStudioEndpoint', e.target.value);
+                    useChatStore.getState().setEndpoint(e.target.value);
+                  }}
+                  placeholder="http://localhost:1234"
+                  className="w-full px-2.5 py-1.5 bg-editor-surface border border-editor-border rounded-md text-xs text-editor-text outline-none focus:border-editor-accent/40 font-mono"
+                />
+                {connectionError ? (
+                  <div className="flex items-center gap-1 text-[9px] text-editor-error mt-0.5">
+                    <AlertCircle size={10} />
+                    Not reachable
+                  </div>
+                ) : isConnected ? (
+                  <div className="flex items-center gap-1 text-[9px] text-editor-success mt-0.5">
+                    <Check size={10} />
+                    Connected
+                  </div>
+                ) : null}
+              </div>
+            )}
+
+            {/* Direct GGUF Inference - Ollama only */}
+            {ai.provider === 'ollama' && (
+              <div className="space-y-2 pt-2 border-t border-editor-border/20">
+                <label className="text-[11px] font-semibold text-editor-text block">
+                  Local .gguf Model Loader (llama.cpp)
+                </label>
+                
+                {ggufModelPath ? (
+                  <div className="p-2.5 rounded-lg bg-editor-surface border border-editor-border space-y-2">
+                    <div className="flex items-start gap-1.5 min-w-0">
+                      <Bot size={14} className="text-editor-accent flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] text-editor-muted uppercase tracking-wider font-semibold">Active Model</div>
+                        <div className="text-xs text-editor-text font-mono truncate" title={ggufModelPath}>
+                          {ggufModelPath.split('/').pop()}
+                        </div>
                       </div>
                     </div>
+                    <div className="flex items-center justify-between text-[10px] text-editor-muted">
+                      <span>Endpoint: http://localhost:11435</span>
+                      <button
+                        onClick={handleUnloadGguf}
+                        className="px-2 py-1 bg-editor-error/10 hover:bg-editor-error/20 text-editor-error rounded transition-colors font-semibold"
+                      >
+                        Unload
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-[10px] text-editor-muted">
-                    <span>Endpoint: http://localhost:11435</span>
-                    <button
-                      onClick={handleUnloadGguf}
-                      className="px-2 py-1 bg-editor-error/10 hover:bg-editor-error/20 text-editor-error rounded transition-colors font-semibold"
-                    >
-                      Unload
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={handlePickAndLoadGguf}
-                  disabled={isLlamaServerLoading}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-editor-accent/10 hover:bg-editor-accent/20 text-editor-accent rounded-lg border border-editor-accent/30 font-semibold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLlamaServerLoading ? (
-                    <>
-                      <RefreshCw size={12} className="animate-spin" />
-                      Loading Llama Server...
-                    </>
-                  ) : (
-                    <>
-                      <FileCode size={12} />
-                      Choose Local .gguf File
-                    </>
-                  )}
-                </button>
-              )}
+                ) : (
+                  <button
+                    onClick={handlePickAndLoadGguf}
+                    disabled={isLlamaServerLoading}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-editor-accent/10 hover:bg-editor-accent/20 text-editor-accent rounded-lg border border-editor-accent/30 font-semibold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLlamaServerLoading ? (
+                      <>
+                        <RefreshCw size={12} className="animate-spin" />
+                        Loading Llama Server...
+                      </>
+                    ) : (
+                      <>
+                        <FileCode size={12} />
+                        Choose Local .gguf File
+                      </>
+                    )}
+                  </button>
+                )}
 
-              {ggufError && (
-                <div className="flex items-start gap-1 text-[10px] text-editor-error">
-                  <AlertCircle size={12} className="flex-shrink-0 mt-0.5" />
-                  <span>{ggufError}</span>
-                </div>
-              )}
-            </div>
+                {ggufError && (
+                  <div className="flex items-start gap-1 text-[10px] text-editor-error">
+                    <AlertCircle size={12} className="flex-shrink-0 mt-0.5" />
+                    <span>{ggufError}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Context Window Size */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-editor-text block">
-                Context Window Size
-              </label>
-              <select
+              <div className="flex justify-between items-center">
+                <label className="text-[11px] font-semibold text-editor-text block">
+                  Context Window Size (tokens)
+                </label>
+                <span className="text-[9px] text-editor-muted">
+                  0 = Model default
+                </span>
+              </div>
+              <input
+                type="number"
+                min="0"
+                step="1024"
                 value={ai.contextWindowSize}
-                onChange={(e) =>
-                  updateAISetting('contextWindowSize', parseInt(e.target.value))
-                }
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  updateAISetting('contextWindowSize', isNaN(val) ? 0 : val);
+                }}
                 className="w-full px-2.5 py-1.5 bg-editor-surface border border-editor-border rounded-md text-xs text-editor-text outline-none focus:border-editor-accent/40"
-              >
-                <option value="2048">2048 tokens</option>
-                <option value="4096">4096 tokens (Default)</option>
-                <option value="8192">8192 tokens</option>
-                <option value="16384">16384 tokens</option>
-              </select>
+                placeholder="e.g. 4096 (0 for model default)"
+              />
             </div>
 
             {/* Auto-apply edits */}

@@ -15,7 +15,7 @@
  *   ```
  */
 
-export type ActionBlockType = 'text' | 'code' | 'file-edit' | 'terminal-command';
+export type ActionBlockType = 'text' | 'code' | 'file-edit' | 'terminal-command' | 'tool-call';
 
 export interface ParsedBlock {
   id: string;
@@ -26,8 +26,10 @@ export interface ParsedBlock {
   language?: string;
   // For terminal-command blocks
   command?: string;
+  // For tool-call blocks
+  tool?: 'read_file' | 'list_dir';
   // State
-  status?: 'pending' | 'applied' | 'rejected';
+  status?: 'pending' | 'applied' | 'rejected' | 'completed' | 'error';
 }
 
 let blockIdCounter = 0;
@@ -69,6 +71,20 @@ export function parseAIResponse(content: string): ParsedBlock[] {
         content: codeContent,
         filePath,
         language,
+        status: 'pending',
+      });
+    }
+    // Detect tool calls: ```read_file:path or ```list_dir:path
+    else if (langOrPath.startsWith('read_file:') || langOrPath.startsWith('list_dir:')) {
+      const isReadFile = langOrPath.startsWith('read_file:');
+      const tool = isReadFile ? 'read_file' : 'list_dir';
+      const filePath = langOrPath.substring(isReadFile ? 10 : 9).trim();
+      blocks.push({
+        id: nextBlockId(),
+        type: 'tool-call',
+        content: codeContent,
+        tool,
+        filePath,
         status: 'pending',
       });
     }

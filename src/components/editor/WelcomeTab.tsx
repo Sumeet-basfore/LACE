@@ -32,6 +32,12 @@ export const WelcomeTab: React.FC = () => {
             shortcut="Ctrl+O"
           />
           <QuickAction
+            icon={<FolderOpen size={18} />}
+            title="Open a folder"
+            description="Open a project directory to load your files"
+            shortcut="Ctrl+K O"
+          />
+          <QuickAction
             icon={<MessageSquare size={18} />}
             title="AI Chat"
             description="Ask your local AI model for help with code"

@@ -6,6 +6,16 @@
     "main"
   ],
   "permissions": [
-    "core:default"
+    "core:default",
+    "dialog:default",
+    "fs:default",
+    {
+      "identifier": "fs:read-all",
+      "allow": [{ "path": "**" }]
+    },
+    {
+      "identifier": "fs:write-all",
+      "allow": [{ "path": "**" }]
+    }
   ]
 }

@@ -1,0 +1,2 @@
+agy --conversation=7d59f0ed-6782-4b29-9f73-f67630dfee0c 
+opencode -s ses_1b164a2c8ffemzQ23tFnYJQUpM

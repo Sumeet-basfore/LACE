@@ -49,8 +49,12 @@ export interface EditorSettings {
   fontFamily: string;
 }
 
+export type AIProvider = 'ollama' | 'lmstudio';
+
 export interface AISettings {
+  provider: AIProvider;
   ollamaEndpoint: string;
+  lmStudioEndpoint: string;
   selectedModel: string;
   contextWindowSize: number;
   allowFileEdits: boolean;

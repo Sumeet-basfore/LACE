@@ -10,7 +10,7 @@ import {
 
 interface TerminalCommandBlockProps {
   command: string;
-  status: 'pending' | 'applied' | 'rejected';
+  status: 'pending' | 'applied' | 'rejected' | 'completed' | 'error';
   onApprove: () => void;
   onReject: () => void;
 }

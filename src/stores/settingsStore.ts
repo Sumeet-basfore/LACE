@@ -22,7 +22,9 @@ const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
 };
 
 const DEFAULT_AI_SETTINGS: AISettings = {
+  provider: 'ollama',
   ollamaEndpoint: 'http://localhost:11434',
+  lmStudioEndpoint: 'http://localhost:1234',
   selectedModel: '',
   contextWindowSize: 4096,
   allowFileEdits: true,

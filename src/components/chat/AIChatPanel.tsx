@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useChatStore } from '../../stores/chatStore';
 import { useEditorStore } from '../../stores/editorStore';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { ChatMessageBubble, StreamingMessage } from './ChatMessage';
 
 export const AIChatPanel: React.FC = () => {
@@ -26,7 +27,7 @@ export const AIChatPanel: React.FC = () => {
     isConnected,
     isCheckingConnection,
     connectionError,
-    ollamaEndpoint,
+    activeEndpoint,
     availableModels,
     selectedModel,
     isLoadingModels,
@@ -48,11 +49,17 @@ export const AIChatPanel: React.FC = () => {
 
   const { tabs, activeTabId } = useEditorStore();
   const activeTab = tabs.find((t) => t.id === activeTabId);
+  const { provider } = useSettingsStore().ai;
 
   const [inputValue, setInputValue] = useState('');
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const [showEndpointEdit, setShowEndpointEdit] = useState(false);
-  const [endpointInput, setEndpointInput] = useState(ollamaEndpoint);
+  const [endpointInput, setEndpointInput] = useState(activeEndpoint);
+
+  // Sync endpointInput when activeEndpoint or provider changes
+  useEffect(() => {
+    setEndpointInput(activeEndpoint);
+  }, [activeEndpoint, provider]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -128,7 +135,13 @@ export const AIChatPanel: React.FC = () => {
             className={`w-1.5 h-1.5 rounded-full ${
               isConnected ? 'bg-editor-success' : 'bg-editor-error'
             }`}
-            title={isConnected ? 'Connected to Ollama' : 'Disconnected'}
+            title={
+              isConnected
+                ? provider === 'ollama'
+                  ? 'Connected to Ollama'
+                  : 'Connected to LM Studio'
+                : 'Disconnected'
+            }
           />
         </div>
         <div className="flex items-center gap-1">
@@ -166,14 +179,14 @@ export const AIChatPanel: React.FC = () => {
       {showEndpointEdit && (
         <div className="px-3 py-2 border-b border-editor-border/50 bg-editor-surface/50 animate-slide-up">
           <label className="text-[10px] text-editor-muted uppercase tracking-wider font-medium mb-1 block">
-            Ollama Endpoint
+            {provider === 'ollama' ? 'Ollama Endpoint' : 'LM Studio Endpoint'}
           </label>
           <div className="flex gap-2">
             <input
               type="text"
               value={endpointInput}
               onChange={(e) => setEndpointInput(e.target.value)}
-              placeholder="http://localhost:11434"
+              placeholder={provider === 'ollama' ? 'http://localhost:11434' : 'http://localhost:1234'}
               className="flex-1 px-2.5 py-1.5 bg-editor-overlay border border-editor-border rounded-md text-xs text-editor-text placeholder-editor-muted outline-none focus:border-editor-accent/50 transition-colors font-mono"
               onKeyDown={(e) => e.key === 'Enter' && handleEndpointSave()}
             />
@@ -245,7 +258,7 @@ export const AIChatPanel: React.FC = () => {
               <div className="px-3 py-4 text-center">
                 <WifiOff size={20} className="mx-auto mb-2 text-editor-muted" />
                 <p className="text-xs text-editor-muted">
-                  Not connected to Ollama
+                  Not connected to {provider === 'ollama' ? 'Ollama' : 'LM Studio'}
                 </p>
                 <button
                   onClick={() => {
@@ -259,10 +272,21 @@ export const AIChatPanel: React.FC = () => {
               </div>
             ) : availableModels.length === 0 ? (
               <div className="px-3 py-4 text-center">
-                <p className="text-xs text-editor-muted">No models found</p>
-                <p className="text-[10px] text-editor-muted mt-1">
-                  Run <code className="text-editor-accent">ollama pull llama3.2</code> to download a model
-                </p>
+                {provider === 'ollama' ? (
+                  <>
+                    <p className="text-xs text-editor-muted">No models found</p>
+                    <p className="text-[10px] text-editor-muted mt-1">
+                      Run <code className="text-editor-accent">ollama pull llama3.2</code> to download a model
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs text-editor-muted">No models loaded</p>
+                    <p className="text-[10px] text-editor-muted mt-1">
+                      Ensure a model is active in LM Studio
+                    </p>
+                  </>
+                )}
               </div>
             ) : (
               availableModels.map((model) => (
@@ -347,12 +371,14 @@ export const AIChatPanel: React.FC = () => {
               </div>
             </div>
             <h3 className="text-base font-semibold text-editor-text mb-2">
-              {isConnected ? 'Ready to Chat' : 'Connect to Ollama'}
+              {isConnected ? 'Ready to Chat' : provider === 'ollama' ? 'Connect to Ollama' : 'Connect to LM Studio'}
             </h3>
             <p className="text-xs text-editor-muted leading-relaxed max-w-[240px] mb-4">
               {isConnected
                 ? `Ask questions about your code. The currently open file is automatically included as context.`
-                : 'Start Ollama on your machine to begin chatting with AI about your code.'}
+                : provider === 'ollama'
+                  ? 'Start Ollama on your machine to begin chatting with AI about your code.'
+                  : 'Start LM Studio server on your machine to begin chatting with AI about your code.'}
             </p>
             {isConnected && (
               <div className="space-y-2 w-full max-w-[240px]">
@@ -386,7 +412,7 @@ export const AIChatPanel: React.FC = () => {
                 ) : (
                   <>
                     <Wifi size={12} />
-                    Connect to Ollama
+                    {provider === 'ollama' ? 'Connect to Ollama' : 'Connect to LM Studio'}
                   </>
                 )}
               </button>
@@ -423,7 +449,9 @@ export const AIChatPanel: React.FC = () => {
                 ? selectedModel
                   ? 'Ask AI about your code...'
                   : 'Select a model first...'
-                : 'Connect to Ollama first...'
+                : provider === 'ollama'
+                  ? 'Connect to Ollama first...'
+                  : 'Connect to LM Studio first...'
             }
             disabled={!isConnected || !selectedModel}
             rows={1}

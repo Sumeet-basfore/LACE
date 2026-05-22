@@ -4,7 +4,9 @@ import { useEditorStore } from '../../stores/editorStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useFileSystemStore } from '../../stores/fileSystemStore';
 import { useSettingsStore } from '../../stores/settingsStore';
+import { useChatStore } from '../../stores/chatStore';
 import { registerInlineCompletionProvider } from '../../utils/inlineCompletionProvider';
+import { registerCodeActionProvider } from '../../utils/codeActionProvider';
 
 // Custom VS Code-like dark theme
 const editorTheme = {
@@ -57,6 +59,7 @@ export const MonacoEditor: React.FC = () => {
   const { editor: editorSettings } = useSettingsStore();
   const editorRef = useRef<any>(null);
   const completionCleanupRef = useRef<(() => void) | null>(null);
+  const codeActionCleanupRef = useRef<(() => void) | null>(null);
 
   const activeTab = tabs.find((t) => t.id === activeTabId);
 
@@ -65,6 +68,10 @@ export const MonacoEditor: React.FC = () => {
       if (completionCleanupRef.current) {
         completionCleanupRef.current();
         completionCleanupRef.current = null;
+      }
+      if (codeActionCleanupRef.current) {
+        codeActionCleanupRef.current();
+        codeActionCleanupRef.current = null;
       }
     };
   }, []);
@@ -86,6 +93,22 @@ export const MonacoEditor: React.FC = () => {
       completionCleanupRef.current();
     }
     completionCleanupRef.current = registerInlineCompletionProvider(monaco);
+
+    // Register code action provider (Auto-Fix)
+    if (codeActionCleanupRef.current) {
+      codeActionCleanupRef.current();
+    }
+    codeActionCleanupRef.current = registerCodeActionProvider(monaco);
+
+    // Register the custom Auto-Fix command on this editor instance
+    editor.addAction({
+      id: 'local-ai.fixError',
+      label: 'Fix with AI',
+      run: (ed: any, prompt: string) => {
+        useUIStore.getState().setSidebarView('ai');
+        useChatStore.getState().sendMessage(prompt);
+      },
+    });
 
     // Ctrl+S to save
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
@@ -150,6 +173,12 @@ export const MonacoEditor: React.FC = () => {
           suggest: {
             showIcons: true,
             showStatusBar: true,
+          },
+          lightbulb: {
+            enabled: true as any,
+          },
+          inlineSuggest: {
+            enabled: true,
           },
           stickyScroll: { enabled: true },
           overviewRulerLanes: 0,

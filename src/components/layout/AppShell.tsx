@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { Terminal as TerminalIcon, X, ChevronDown, PanelRight, PanelLeft } from 'lucide-react';
 import { ActivityBar } from '../sidebar/ActivityBar';
 import { FileExplorer } from '../sidebar/FileExplorer';
+import { SearchPanel } from '../sidebar/SearchPanel';
 import { EditorTabs } from '../editor/EditorTabs';
 import { MonacoEditor } from '../editor/MonacoEditor';
 import { WelcomeTab } from '../editor/WelcomeTab';
@@ -11,6 +12,7 @@ import { SettingsPanel } from '../sidebar/SettingsPanel';
 import { StatusBar } from './StatusBar';
 import { useUIStore } from '../../stores/uiStore';
 import { useEditorStore } from '../../stores/editorStore';
+import { useFileSystemStore } from '../../stores/fileSystemStore';
 
 export const AppShell: React.FC = () => {
   const {
@@ -65,9 +67,34 @@ export const AppShell: React.FC = () => {
 
   // ===== Keyboard shortcuts =====
   useEffect(() => {
+    let lastKey = '';
     const handleKeyboard = (e: KeyboardEvent) => {
+      // Handle chord Ctrl+K
+      if (e.ctrlKey && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        lastKey = 'ctrl+k';
+        return;
+      }
+      
+      // Ctrl+K -> O
+      if (lastKey === 'ctrl+k' && (e.key === 'o' || e.key === 'O')) {
+        e.preventDefault();
+        useFileSystemStore.getState().openFolder();
+        lastKey = '';
+        return;
+      }
+      
+      // Reset chord if any other key is pressed
+      lastKey = '';
+
+      // Ctrl+Shift+F — Toggle search panel
+      if (e.ctrlKey && e.shiftKey && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault();
+        useUIStore.getState().setSidebarView('search');
+      }
+
       // Ctrl+L — Toggle AI panel
-      if (e.ctrlKey && (e.key === 'l' || e.key === 'L')) {
+      if (e.ctrlKey && !e.shiftKey && (e.key === 'l' || e.key === 'L')) {
         e.preventDefault();
         toggleAIPanel();
       }
@@ -116,21 +143,7 @@ export const AppShell: React.FC = () => {
               style={{ width: panelSizes.sidebarWidth }}
             >
               {activeSidebarView === 'explorer' && <FileExplorer />}
-              {activeSidebarView === 'search' && (
-                <div className="flex flex-col h-full bg-sidebar-bg p-4">
-                  <h3 className="text-[11px] font-semibold text-editor-subtext uppercase tracking-wider mb-3">
-                    Search
-                  </h3>
-                  <input
-                    type="text"
-                    placeholder="Search files..."
-                    className="w-full px-3 py-1.5 bg-editor-surface border border-editor-border rounded-md text-sm text-editor-text placeholder-editor-muted outline-none focus:border-editor-accent/50 transition-colors"
-                  />
-                  <p className="text-xs text-editor-muted mt-4 text-center">
-                    Type to search across files
-                  </p>
-                </div>
-              )}
+              {activeSidebarView === 'search' && <SearchPanel />}
               {activeSidebarView === 'settings' && <SettingsPanel />}
               {activeSidebarView === 'ai' && (
                 <div className="flex flex-col h-full bg-sidebar-bg p-4">
