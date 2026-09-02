@@ -1,0 +1,21 @@
+{
+  "dataset": "SWE-bench/SWE-bench_Lite",
+  "dataset_alias": "lite",
+  "dataset_version": "SWE-bench/SWE-bench_Lite test via swebench 5.0.2 (image field present)",
+  "split": "test",
+  "n": 7,
+  "selection": "stratified 1 per repo, deterministic lexicographically smallest per repo not in Phase 2B/2C used set (11 tasks), sorted lexicographically",
+  "excluded": ["astropy__astropy-12907","astropy__astropy-14182","django__django-10914","django__django-10924","django__django-11001","matplotlib__matplotlib-18869","matplotlib__matplotlib-22711","matplotlib__matplotlib-22835","mwaskom__seaborn-2848","mwaskom__seaborn-3010","pallets__flask-4045"],
+  "ids": ["psf__requests-1963","pydata__xarray-3364","pylint-dev__pylint-5859","pytest-dev__pytest-11143","scikit-learn__scikit-learn-10297","sphinx-doc__sphinx-10325","sympy__sympy-11400"],
+  "tasks": [
+    {"instance_id": "psf__requests-1963", "repo": "psf/requests", "base_commit": "110048f9837f8441ea536804115e80b69f400277"},
+    {"instance_id": "pydata__xarray-3364", "repo": "pydata/xarray", "base_commit": "863e49066ca4d61c9adfe62aca3bf21b90e1af8c"},
+    {"instance_id": "pylint-dev__pylint-5859", "repo": "pylint-dev/pylint", "base_commit": "182cc539b8154c0710fcea7e522267e42eba8899"},
+    {"instance_id": "pytest-dev__pytest-11143", "repo": "pytest-dev/pytest", "base_commit": "6995257cf470d2143ad1683824962de4071c0eb7"},
+    {"instance_id": "scikit-learn__scikit-learn-10297", "repo": "scikit-learn/scikit-learn", "base_commit": "b90661d6a46aa3619d3eec94d5281f5888add501"},
+    {"instance_id": "sphinx-doc__sphinx-10325", "repo": "sphinx-doc/sphinx", "base_commit": "7bdc11e87c7d86dcc2a087eccb7a7c129a473415"},
+    {"instance_id": "sympy__sympy-11400", "repo": "sympy/sympy", "base_commit": "8dcb12a6cf500e8738d6729ab954a261758f49ca"}
+  ],
+  "frozen_at": "2026-09-02T17:00:00Z",
+  "frozen_by": "phase2d deterministic manifest, excludes Phase 2B/2C tasks"
+}

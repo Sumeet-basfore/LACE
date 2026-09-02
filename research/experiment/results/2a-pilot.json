@@ -1,0 +1,68 @@
+{
+  "run_id": "2a-pilot",
+  "baseline": {
+    "n": 5,
+    "task_pass_n": 4,
+    "strict_pass_n": 4,
+    "task_success_rate": 0.8,
+    "strict_success_rate": 0.8,
+    "regression_pass_n": 5,
+    "regression_rate": 1.0,
+    "median_tokens": 394,
+    "median_latency": 0.08,
+    "recovery_n": 0,
+    "recovery_rate": 0.0,
+    "human_intervention_n": 0,
+    "wilson_ci_task": [
+      0.3755282641185388,
+      0.9637768390302125
+    ],
+    "wilson_ci_strict": [
+      0.3755282641185388,
+      0.9637768390302125
+    ]
+  },
+  "candidate": {
+    "n": 5,
+    "task_pass_n": 5,
+    "strict_pass_n": 5,
+    "task_success_rate": 1.0,
+    "strict_success_rate": 1.0,
+    "regression_pass_n": 5,
+    "regression_rate": 1.0,
+    "median_tokens": 501,
+    "median_latency": 0.079,
+    "recovery_n": 1,
+    "recovery_rate": 0.2,
+    "human_intervention_n": 0,
+    "wilson_ci_task": [
+      0.5655085052479191,
+      1
+    ],
+    "wilson_ci_strict": [
+      0.5655085052479191,
+      1
+    ]
+  },
+  "delta": {
+    "pp_task": 19.999999999999996,
+    "pp_strict": 19.999999999999996,
+    "median_token_ratio": 1.2715736040609138,
+    "median_latency_ratio": 0.9875,
+    "token_ratio": 1.2715736040609138
+  },
+  "thresholds": {
+    "pp_required": 10,
+    "median_cost_ratio_max": 2.0,
+    "median_latency_ratio_max": 2.0,
+    "regression_non_inferior": true
+  },
+  "verdict": {
+    "pp_met": true,
+    "ci_nonoverlap": false,
+    "cost_met": true,
+    "latency_met": true,
+    "regression_met": true,
+    "overall_pp_and_guardrails": true
+  }
+}

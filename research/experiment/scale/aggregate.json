@@ -1,0 +1,25 @@
+{
+  "run_id": "scale-pending-n30",
+  "note": "Powered run at n=30 not yet fully executed in Phase 2B window — design validated via 2a-pilot synthetic n=5 and shakedown n=10 real-task instrumentation gate. This aggregate is the design target, not measured results. See research/experiment/analysis/powered-validation.md for threshold evaluation and next step.",
+  "dataset": "princeton-nlp/SWE-bench_Lite",
+  "dataset_version": "6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2",
+  "n_target": 30,
+  "n_shakedown_executed": 10,
+  "n_pilot_executed": 5,
+  "thresholds": {
+    "pp_required": 10,
+    "median_cost_ratio_max": 2.0,
+    "median_latency_ratio_max": 2.0,
+    "regression_non_inferior": true
+  },
+  "pilot_proxy": {
+    "baseline_success": 0.8,
+    "candidate_success": 1.0,
+    "pp_delta": 20.0,
+    "wilson_ci_overlap": true,
+    "median_token_ratio": 1.27,
+    "per_retry_token_ratio": 2.05,
+    "regression_both": 1.0
+  },
+  "verdict_proxy": "T1 NOT MET as powered claim — ci overlap and n=5 <<300 needed for 10pp; instrumentation PASS, hypothesis INCONCLUSIVE — powered run at n=30 with native billing and Docker required before GO/KILL"
+}

@@ -1,0 +1,286 @@
+{
+  "dataset": "princeton-nlp/SWE-bench_Lite",
+  "dataset_version": "6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2",
+  "split": "test",
+  "n": 30,
+  "selection": "stratified deterministic by repository: first 2 instance_ids sorted lexicographically per repository (12 repos \u00d72 =24) plus third instance per each of the 6 largest repositories by Lite count (django 114, sympy 77, matplotlib 23, scikit-learn 23, pytest-dev 17, sphinx 16) to reach 30, then sorted lexicographically. Replaces 2026-09-02 first-30 sorted pathological 80% django-concentrated manifest before any powered result observed.",
+  "filtering_criteria": "none beyond stratified deterministic sort; no exclusions before execution; same task set for both arms",
+  "exclusions": [],
+  "ids": [
+    "astropy__astropy-12907",
+    "astropy__astropy-14182",
+    "django__django-10914",
+    "django__django-10924",
+    "django__django-11001",
+    "matplotlib__matplotlib-18869",
+    "matplotlib__matplotlib-22711",
+    "matplotlib__matplotlib-22835",
+    "mwaskom__seaborn-2848",
+    "mwaskom__seaborn-3010",
+    "pallets__flask-4045",
+    "pallets__flask-4992",
+    "psf__requests-1963",
+    "psf__requests-2148",
+    "pydata__xarray-3364",
+    "pydata__xarray-4094",
+    "pylint-dev__pylint-5859",
+    "pylint-dev__pylint-6506",
+    "pytest-dev__pytest-11143",
+    "pytest-dev__pytest-11148",
+    "pytest-dev__pytest-5103",
+    "scikit-learn__scikit-learn-10297",
+    "scikit-learn__scikit-learn-10508",
+    "scikit-learn__scikit-learn-10949",
+    "sphinx-doc__sphinx-10325",
+    "sphinx-doc__sphinx-10451",
+    "sphinx-doc__sphinx-11445",
+    "sympy__sympy-11400",
+    "sympy__sympy-11870",
+    "sympy__sympy-11897"
+  ],
+  "tasks": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "repo": "astropy/astropy",
+      "base_commit": "d16bfe05a744909de4b27f5875fe0d4ed41ce607",
+      "FAIL_count": 2,
+      "created_at": "2022-03-03T15:14:54Z",
+      "version": "4.3"
+    },
+    {
+      "instance_id": "astropy__astropy-14182",
+      "repo": "astropy/astropy",
+      "base_commit": "a5917978be39d13cd90b517e1de4e7a539ffaa48",
+      "FAIL_count": 1,
+      "created_at": "2022-12-16T11:13:37Z",
+      "version": "5.1"
+    },
+    {
+      "instance_id": "django__django-10914",
+      "repo": "django/django",
+      "base_commit": "e7fd69d051eaa67cb17f172a39b57253e9cb831a",
+      "FAIL_count": 1,
+      "created_at": "2019-01-30T13:13:20Z",
+      "version": "3.0"
+    },
+    {
+      "instance_id": "django__django-10924",
+      "repo": "django/django",
+      "base_commit": "bceadd2788dc2dad53eba0caae172bd8522fd483",
+      "FAIL_count": 1,
+      "created_at": "2019-02-03T11:30:12Z",
+      "version": "3.0"
+    },
+    {
+      "instance_id": "django__django-11001",
+      "repo": "django/django",
+      "base_commit": "ef082ebb84f00e38af4e8880d04e8365c2766d34",
+      "FAIL_count": 2,
+      "created_at": "2019-02-17T13:02:09Z",
+      "version": "3.0"
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-18869",
+      "repo": "matplotlib/matplotlib",
+      "base_commit": "b7d05919865fc0c37a0164cf467d5d5513bd0ede",
+      "FAIL_count": 4,
+      "created_at": "2020-11-01T23:18:42Z",
+      "version": "3.3"
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-22711",
+      "repo": "matplotlib/matplotlib",
+      "base_commit": "f670fe78795b18eb1118707721852209cd77ad51",
+      "FAIL_count": 2,
+      "created_at": "2022-03-27T00:34:37Z",
+      "version": "3.5"
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-22835",
+      "repo": "matplotlib/matplotlib",
+      "base_commit": "c33557d120eefe3148ebfcf2e758ff2357966000",
+      "FAIL_count": 1,
+      "created_at": "2022-04-12T23:13:58Z",
+      "version": "3.5"
+    },
+    {
+      "instance_id": "mwaskom__seaborn-2848",
+      "repo": "mwaskom/seaborn",
+      "base_commit": "94621cef29f80282436d73e8d2c0aa76dab81273",
+      "FAIL_count": 1,
+      "created_at": "2022-06-11T18:21:32Z",
+      "version": "0.12"
+    },
+    {
+      "instance_id": "mwaskom__seaborn-3010",
+      "repo": "mwaskom/seaborn",
+      "base_commit": "0f5a013e2cf43562deec3b879458e59a73853813",
+      "FAIL_count": 1,
+      "created_at": "2022-09-11T19:37:32Z",
+      "version": "0.12"
+    },
+    {
+      "instance_id": "pallets__flask-4045",
+      "repo": "pallets/flask",
+      "base_commit": "d8c37f43724cd9fb0870f77877b7c4c7e38a19e0",
+      "FAIL_count": 2,
+      "created_at": "2021-05-13T21:32:41Z",
+      "version": "2.0"
+    },
+    {
+      "instance_id": "pallets__flask-4992",
+      "repo": "pallets/flask",
+      "base_commit": "4c288bc97ea371817199908d0d9b12de9dae327e",
+      "FAIL_count": 1,
+      "created_at": "2023-02-22T14:00:17Z",
+      "version": "2.3"
+    },
+    {
+      "instance_id": "psf__requests-1963",
+      "repo": "psf/requests",
+      "base_commit": "110048f9837f8441ea536804115e80b69f400277",
+      "FAIL_count": 7,
+      "created_at": "2014-03-15T17:42:11Z",
+      "version": "2.3"
+    },
+    {
+      "instance_id": "psf__requests-2148",
+      "repo": "psf/requests",
+      "base_commit": "fe693c492242ae532211e0c173324f09ca8cf227",
+      "FAIL_count": 10,
+      "created_at": "2014-07-24T21:03:03Z",
+      "version": "2.3"
+    },
+    {
+      "instance_id": "pydata__xarray-3364",
+      "repo": "pydata/xarray",
+      "base_commit": "863e49066ca4d61c9adfe62aca3bf21b90e1af8c",
+      "FAIL_count": 2,
+      "created_at": "2019-10-01T21:15:54Z",
+      "version": "0.12"
+    },
+    {
+      "instance_id": "pydata__xarray-4094",
+      "repo": "pydata/xarray",
+      "base_commit": "a64cf2d5476e7bbda099b34c40b7be1880dbd39a",
+      "FAIL_count": 1,
+      "created_at": "2020-05-26T00:36:02Z",
+      "version": "0.12"
+    },
+    {
+      "instance_id": "pylint-dev__pylint-5859",
+      "repo": "pylint-dev/pylint",
+      "base_commit": "182cc539b8154c0710fcea7e522267e42eba8899",
+      "FAIL_count": 1,
+      "created_at": "2022-03-04T00:01:54Z",
+      "version": "2.13"
+    },
+    {
+      "instance_id": "pylint-dev__pylint-6506",
+      "repo": "pylint-dev/pylint",
+      "base_commit": "0a4204fd7555cfedd43f43017c94d24ef48244a5",
+      "FAIL_count": 2,
+      "created_at": "2022-05-05T13:01:41Z",
+      "version": "2.14"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-11143",
+      "repo": "pytest-dev/pytest",
+      "base_commit": "6995257cf470d2143ad1683824962de4071c0eb7",
+      "FAIL_count": 1,
+      "created_at": "2023-06-26T06:44:43Z",
+      "version": "8.0"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-11148",
+      "repo": "pytest-dev/pytest",
+      "base_commit": "2f7415cfbc4b6ca62f9013f1abd27136f46b9653",
+      "FAIL_count": 2,
+      "created_at": "2023-06-29T00:04:33Z",
+      "version": "8.0"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-5103",
+      "repo": "pytest-dev/pytest",
+      "base_commit": "10ca84ffc56c2dd2d9dc4bd71b7b898e083500cd",
+      "FAIL_count": 1,
+      "created_at": "2019-04-13T16:17:45Z",
+      "version": "4.5"
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-10297",
+      "repo": "scikit-learn/scikit-learn",
+      "base_commit": "b90661d6a46aa3619d3eec94d5281f5888add501",
+      "FAIL_count": 1,
+      "created_at": "2017-12-12T22:07:47Z",
+      "version": "0.20"
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-10508",
+      "repo": "scikit-learn/scikit-learn",
+      "base_commit": "c753b77ac49e72ebc0fe5e3c2369fe628f975017",
+      "FAIL_count": 2,
+      "created_at": "2018-01-19T18:00:29Z",
+      "version": "0.20"
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-10949",
+      "repo": "scikit-learn/scikit-learn",
+      "base_commit": "3b5abf76597ce6aff76192869f92647c1b5259e7",
+      "FAIL_count": 1,
+      "created_at": "2018-04-10T15:30:56Z",
+      "version": "0.20"
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-10325",
+      "repo": "sphinx-doc/sphinx",
+      "base_commit": "7bdc11e87c7d86dcc2a087eccb7a7c129a473415",
+      "FAIL_count": 1,
+      "created_at": "2022-04-02T17:05:02Z",
+      "version": "5.0"
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-10451",
+      "repo": "sphinx-doc/sphinx",
+      "base_commit": "195e911f1dab04b8ddeacbe04b7d214aaf81bb0b",
+      "FAIL_count": 2,
+      "created_at": "2022-05-15T11:49:39Z",
+      "version": "5.1"
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-11445",
+      "repo": "sphinx-doc/sphinx",
+      "base_commit": "71db08c05197545944949d5aa76cd340e7143627",
+      "FAIL_count": 2,
+      "created_at": "2023-05-28T19:15:07Z",
+      "version": "7.1"
+    },
+    {
+      "instance_id": "sympy__sympy-11400",
+      "repo": "sympy/sympy",
+      "base_commit": "8dcb12a6cf500e8738d6729ab954a261758f49ca",
+      "FAIL_count": 2,
+      "created_at": "2016-07-15T21:40:49Z",
+      "version": "1.0"
+    },
+    {
+      "instance_id": "sympy__sympy-11870",
+      "repo": "sympy/sympy",
+      "base_commit": "5c2e1f96a7ff562d4a778f4ca9ffc9c81557197e",
+      "FAIL_count": 1,
+      "created_at": "2016-11-17T21:36:03Z",
+      "version": "1.1"
+    },
+    {
+      "instance_id": "sympy__sympy-11897",
+      "repo": "sympy/sympy",
+      "base_commit": "e2918c1205c47345eb73c9be68b14c0f15fdeb17",
+      "FAIL_count": 1,
+      "created_at": "2016-12-03T14:40:51Z",
+      "version": "1.0"
+    }
+  ],
+  "supersedes": "first-30 lexicographically sorted (6 astropy + 24 django) \u2014 pathological, 80% django vs 38% in population \u2014 replaced per pre-result audit before powered execution (allowed, documented, reproducible)",
+  "frozen_at": "2026-09-02T07:55:00Z before powered run",
+  "frozen_by": "pre-result sample audit (stratified balanced)"
+}

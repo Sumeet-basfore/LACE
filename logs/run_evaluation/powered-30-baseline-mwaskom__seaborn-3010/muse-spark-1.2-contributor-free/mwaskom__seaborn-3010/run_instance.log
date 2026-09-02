@@ -1,0 +1,57 @@
+2026-09-02 17:45:55,308 - INFO - Image not found locally, attempting to pull...
+2026-09-02 17:47:07,421 - INFO - Creating container for mwaskom__seaborn-3010...
+2026-09-02 17:47:07,709 - INFO - Container for mwaskom__seaborn-3010 created: 3a486dd014d166689ff299e86d1ac47af0a0a336e0289833d6a2f67e6e813530
+2026-09-02 17:47:07,962 - INFO - Container for mwaskom__seaborn-3010 started: 3a486dd014d166689ff299e86d1ac47af0a0a336e0289833d6a2f67e6e813530
+2026-09-02 17:47:07,963 - INFO - Intermediate patch for mwaskom__seaborn-3010 written to logs/run_evaluation/powered-30-baseline-mwaskom__seaborn-3010/muse-spark-1.2-contributor-free/mwaskom__seaborn-3010/patch.diff, now applying to container...
+2026-09-02 17:47:08,067 - INFO - Failed to apply patch to container: git apply --verbose
+2026-09-02 17:47:08,195 - INFO - Failed to apply patch to container: git apply --verbose --3way
+2026-09-02 17:47:08,293 - INFO - Failed to apply patch to container: git apply --verbose --reject
+2026-09-02 17:47:08,404 - INFO - >>>>> Applied Patch:
+patching file seaborn/_stats/regression.py
+patch unexpectedly ends in middle of line
+Hunk #1 succeeded at 38 with fuzz 1.
+
+2026-09-02 17:47:08,459 - INFO - Git diff before:
+diff --git a/seaborn/_stats/regression.py b/seaborn/_stats/regression.py
+index 7b7ddc8..9ec81a4 100755
+--- a/seaborn/_stats/regression.py
++++ b/seaborn/_stats/regression.py
+@@ -38,7 +38,10 @@ class PolyFit(Stat):
+ 
+     def __call__(self, data, groupby, orient, scales):
+ 
+-        return groupby.apply(data, self._fit_predict)
++        return (
++            groupby
++            .apply(data.dropna(subset=["x", "y"]), self._fit_predict)
++        )
+ 
+ 
+ @dataclass
+2026-09-02 17:47:08,460 - INFO - Eval script for mwaskom__seaborn-3010 written to logs/run_evaluation/powered-30-baseline-mwaskom__seaborn-3010/muse-spark-1.2-contributor-free/mwaskom__seaborn-3010/eval.sh; copying to container...
+2026-09-02 17:47:12,116 - INFO - Test runtime: 3.61 seconds
+2026-09-02 17:47:12,116 - INFO - Test output for mwaskom__seaborn-3010 written to logs/run_evaluation/powered-30-baseline-mwaskom__seaborn-3010/muse-spark-1.2-contributor-free/mwaskom__seaborn-3010/test_output.txt
+2026-09-02 17:47:12,175 - INFO - Git diff after:
+diff --git a/seaborn/_stats/regression.py b/seaborn/_stats/regression.py
+index 7b7ddc8..9ec81a4 100755
+--- a/seaborn/_stats/regression.py
++++ b/seaborn/_stats/regression.py
+@@ -38,7 +38,10 @@ class PolyFit(Stat):
+ 
+     def __call__(self, data, groupby, orient, scales):
+ 
+-        return groupby.apply(data, self._fit_predict)
++        return (
++            groupby
++            .apply(data.dropna(subset=["x", "y"]), self._fit_predict)
++        )
+ 
+ 
+ @dataclass
+2026-09-02 17:47:12,175 - INFO - Grading answer for mwaskom__seaborn-3010...
+2026-09-02 17:47:12,176 - INFO - report: {'mwaskom__seaborn-3010': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': True, 'infra_failure': False, 'tests_status': {'FAIL_TO_PASS': {'success': ['tests/_stats/test_regression.py::TestPolyFit::test_missing_data'], 'failure': []}, 'PASS_TO_PASS': {'success': ['tests/_stats/test_regression.py::TestPolyFit::test_no_grouper', 'tests/_stats/test_regression.py::TestPolyFit::test_one_grouper'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for mwaskom__seaborn-3010: resolved: True
+2026-09-02 17:47:12,176 - INFO - Attempting to stop container sweb.eval.mwaskom__seaborn-3010.powered-30-baseline-mwaskom__seaborn-3010...
+2026-09-02 17:47:27,504 - INFO - Container sweb.eval.mwaskom__seaborn-3010.powered-30-baseline-mwaskom__seaborn-3010 stopped successfully.
+2026-09-02 17:47:27,504 - INFO - Attempting to remove container sweb.eval.mwaskom__seaborn-3010.powered-30-baseline-mwaskom__seaborn-3010...
+2026-09-02 17:47:27,610 - INFO - Container sweb.eval.mwaskom__seaborn-3010.powered-30-baseline-mwaskom__seaborn-3010 removed successfully.

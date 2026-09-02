@@ -1,0 +1,33 @@
+PATCH:
+diff --git a/lib/matplotlib/__init__.py b/lib/matplotlib/__init__.py
+index 987778bd86..3af6e3b8f42 100644
+--- a/lib/matplotlib/__init__.py
++++ b/lib/matplotlib/__init__.py
+@@ -115,6 +115,8 @@
+ # this is computed based on the number of commits since the last tag.
+ from ._version import get_versions
+ __version__ = str(get_versions()['version'])
++__version_info__ = tuple(map(int, __version__.split('.')[:3]))
++
+ del get_versions
+ 
+ _log = logging.getLogger(__name__)
+
+TRANSCRIPT:
+```diff
+diff --git a/lib/matplotlib/__init__.py b/lib/matplotlib/__init__.py
+index 987778bd86..3af6e3b8f42 100644
+--- a/lib/matplotlib/__init__.py
++++ b/lib/matplotlib/__init__.py
+@@ -115,6 +115,8 @@
+ # this is computed based on the number of commits since the last tag.
+ from ._version import get_versions
+ __version__ = str(get_versions()['version'])
++__version_info__ = tuple(map(int, __version__.split('.')[:3]))
++
+ del get_versions
+ 
+ _log = logging.getLogger(__name__)
+```
+
+STDERR:

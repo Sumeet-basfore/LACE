@@ -1,0 +1,21 @@
+{
+  "baseline_initial_prompt == candidate_initial_prompt": true,
+  "note_prompt": "Both arms use identical BASE prompt (problem_statement + repo + instruction). Candidate only appends feedback after deterministic verification failure, not in initial prompt.",
+  "baseline_model == candidate_model": true,
+  "baseline_model_value": "muse-spark-1.2-contributor-free",
+  "candidate_model_value": "muse-spark-1.2-contributor-free",
+  "baseline_temperature == candidate_temperature": true,
+  "temperature": 0.2,
+  "baseline_tools == candidate_tools": true,
+  "tools": "pi with read/bash/edit via opencode provider, same allow-list both arms",
+  "baseline_timeout == candidate_timeout": true,
+  "timeout": "120s pi + 300s verification per attempt, same both arms",
+  "baseline_environment == candidate_environment": true,
+  "baseline_repo_commit == candidate_repo_commit": true,
+  "note_commit": "Same per-task base_commit from manifest, isolated docker evaluation per task/arm via swebench lite images",
+  "task_manifest_unchanged": true,
+  "task_manifest_hash": "c688611a1e7c8be6",
+  "task_manifest_path": "research/experiment/scale/task-manifest.json",
+  "only_intended_difference": "verification/recovery bundle (gate\u2192parse\u2192feedback\u2192retry\u22642\u2192regression) for candidate, 0 retries for baseline",
+  "validation": "PASS \u2014 all fairness checks true per powered_harness.py MODEL constant; candidate only adds structured feedback after verification"
+}

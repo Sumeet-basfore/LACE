@@ -1,0 +1,27 @@
+2026-09-02 18:42:16,557 - INFO - Creating container for pydata__xarray-3364...
+2026-09-02 18:42:16,773 - INFO - Container for pydata__xarray-3364 created: f0a25192c91e3c1ea7318416930a426c1a421486fd2b2779f25f7c7f775dd5cc
+2026-09-02 18:42:17,058 - INFO - Container for pydata__xarray-3364 started: f0a25192c91e3c1ea7318416930a426c1a421486fd2b2779f25f7c7f775dd5cc
+2026-09-02 18:42:17,058 - INFO - Intermediate patch for pydata__xarray-3364 written to logs/run_evaluation/phase2d-pydata__xarray-3364/muse-spark-1.2-contributor-free/pydata__xarray-3364/patch.diff, now applying to container...
+2026-09-02 18:42:17,231 - INFO - Failed to apply patch to container: git apply --verbose
+2026-09-02 18:42:17,499 - INFO - Failed to apply patch to container: git apply --verbose --3way
+2026-09-02 18:42:17,729 - INFO - Failed to apply patch to container: git apply --verbose --reject
+2026-09-02 18:42:17,952 - INFO - Failed to apply patch to container: patch --batch --forward --fuzz=5 -p1 -i
+2026-09-02 18:42:18,041 - INFO - >>>>> Patch Apply Failed:
+patch unexpectedly ends in middle of line
+patch: **** Only garbage was found in the patch input.
+
+2026-09-02 18:42:18,044 - INFO - Traceback (most recent call last):
+  File "/tmp/venv2/lib/python3.14/site-packages/swebench/harness/run_evaluation.py", line 333, in run_instance
+    raise EvaluationError(
+    ...<3 lines>...
+    )
+swebench.harness.utils.EvaluationError: Error in evaluation for pydata__xarray-3364: >>>>> Patch Apply Failed:
+patch unexpectedly ends in middle of line
+patch: **** Only garbage was found in the patch input.
+
+Check (logs/run_evaluation/phase2d-pydata__xarray-3364/muse-spark-1.2-contributor-free/pydata__xarray-3364/run_instance.log) for more information.
+
+2026-09-02 18:42:18,044 - INFO - Attempting to stop container sweb.eval.pydata__xarray-3364.phase2d-pydata__xarray-3364...
+2026-09-02 18:42:33,434 - INFO - Container sweb.eval.pydata__xarray-3364.phase2d-pydata__xarray-3364 stopped successfully.
+2026-09-02 18:42:33,434 - INFO - Attempting to remove container sweb.eval.pydata__xarray-3364.phase2d-pydata__xarray-3364...
+2026-09-02 18:42:33,696 - INFO - Container sweb.eval.pydata__xarray-3364.phase2d-pydata__xarray-3364 removed successfully.

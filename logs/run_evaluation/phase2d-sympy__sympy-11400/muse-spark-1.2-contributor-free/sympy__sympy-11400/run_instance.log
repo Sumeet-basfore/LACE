@@ -1,0 +1,27 @@
+2026-09-02 19:02:17,211 - INFO - Creating container for sympy__sympy-11400...
+2026-09-02 19:02:17,433 - INFO - Container for sympy__sympy-11400 created: 04385e848133993065bb6c91035b3c986e6069d4c4b5ad51bd071b9b64e0feb2
+2026-09-02 19:02:17,708 - INFO - Container for sympy__sympy-11400 started: 04385e848133993065bb6c91035b3c986e6069d4c4b5ad51bd071b9b64e0feb2
+2026-09-02 19:02:17,708 - INFO - Intermediate patch for sympy__sympy-11400 written to logs/run_evaluation/phase2d-sympy__sympy-11400/muse-spark-1.2-contributor-free/sympy__sympy-11400/patch.diff, now applying to container...
+2026-09-02 19:02:17,888 - INFO - Failed to apply patch to container: git apply --verbose
+2026-09-02 19:02:18,485 - INFO - Failed to apply patch to container: git apply --verbose --3way
+2026-09-02 19:02:18,847 - INFO - Failed to apply patch to container: git apply --verbose --reject
+2026-09-02 19:02:19,203 - INFO - Failed to apply patch to container: patch --batch --forward --fuzz=5 -p1 -i
+2026-09-02 19:02:19,279 - INFO - >>>>> Patch Apply Failed:
+patch unexpectedly ends in middle of line
+patch: **** Only garbage was found in the patch input.
+
+2026-09-02 19:02:19,281 - INFO - Traceback (most recent call last):
+  File "/tmp/venv2/lib/python3.14/site-packages/swebench/harness/run_evaluation.py", line 333, in run_instance
+    raise EvaluationError(
+    ...<3 lines>...
+    )
+swebench.harness.utils.EvaluationError: Error in evaluation for sympy__sympy-11400: >>>>> Patch Apply Failed:
+patch unexpectedly ends in middle of line
+patch: **** Only garbage was found in the patch input.
+
+Check (logs/run_evaluation/phase2d-sympy__sympy-11400/muse-spark-1.2-contributor-free/sympy__sympy-11400/run_instance.log) for more information.
+
+2026-09-02 19:02:19,282 - INFO - Attempting to stop container sweb.eval.sympy__sympy-11400.phase2d-sympy__sympy-11400...
+2026-09-02 19:02:34,654 - INFO - Container sweb.eval.sympy__sympy-11400.phase2d-sympy__sympy-11400 stopped successfully.
+2026-09-02 19:02:34,655 - INFO - Attempting to remove container sweb.eval.sympy__sympy-11400.phase2d-sympy__sympy-11400...
+2026-09-02 19:02:34,997 - INFO - Container sweb.eval.sympy__sympy-11400.phase2d-sympy__sympy-11400 removed successfully.

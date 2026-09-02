@@ -1,0 +1,31 @@
+2026-09-02 14:59:50,851 - INFO - Creating container for django__django-11001...
+2026-09-02 14:59:51,065 - INFO - Container for django__django-11001 created: ff72cf0455756e8ff7b69494d304b5be854414e323efcfcc57bd2cb8f0e99e02
+2026-09-02 14:59:51,324 - INFO - Container for django__django-11001 started: ff72cf0455756e8ff7b69494d304b5be854414e323efcfcc57bd2cb8f0e99e02
+2026-09-02 14:59:51,325 - INFO - Intermediate patch for django__django-11001 written to logs/run_evaluation/powered-30-candidate-a3-django__django-11001/muse-spark-1.2-contributor-free/django__django-11001/patch.diff, now applying to container...
+2026-09-02 14:59:51,459 - INFO - Failed to apply patch to container: git apply --verbose
+2026-09-02 14:59:52,551 - INFO - Failed to apply patch to container: git apply --verbose --3way
+2026-09-02 14:59:52,810 - INFO - Failed to apply patch to container: git apply --verbose --reject
+2026-09-02 14:59:53,108 - INFO - Failed to apply patch to container: patch --batch --forward --fuzz=5 -p1 -i
+2026-09-02 14:59:53,204 - INFO - >>>>> Patch Apply Failed:
+patching file django/db/models/sql/compiler.py
+patch unexpectedly ends in middle of line
+patch: **** malformed patch at line 14:  
+
+
+2026-09-02 14:59:53,206 - INFO - Traceback (most recent call last):
+  File "/tmp/venv2/lib/python3.14/site-packages/swebench/harness/run_evaluation.py", line 333, in run_instance
+    raise EvaluationError(
+    ...<3 lines>...
+    )
+swebench.harness.utils.EvaluationError: Error in evaluation for django__django-11001: >>>>> Patch Apply Failed:
+patching file django/db/models/sql/compiler.py
+patch unexpectedly ends in middle of line
+patch: **** malformed patch at line 14:  
+
+
+Check (logs/run_evaluation/powered-30-candidate-a3-django__django-11001/muse-spark-1.2-contributor-free/django__django-11001/run_instance.log) for more information.
+
+2026-09-02 14:59:53,207 - INFO - Attempting to stop container sweb.eval.django__django-11001.powered-30-candidate-a3-django__django-11001...
+2026-09-02 15:00:08,658 - INFO - Container sweb.eval.django__django-11001.powered-30-candidate-a3-django__django-11001 stopped successfully.
+2026-09-02 15:00:08,658 - INFO - Attempting to remove container sweb.eval.django__django-11001.powered-30-candidate-a3-django__django-11001...
+2026-09-02 15:00:09,131 - INFO - Container sweb.eval.django__django-11001.powered-30-candidate-a3-django__django-11001 removed successfully.

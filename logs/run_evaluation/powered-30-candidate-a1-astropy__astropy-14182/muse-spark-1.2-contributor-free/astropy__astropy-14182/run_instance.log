@@ -1,0 +1,67 @@
+2026-09-02 14:25:47,677 - INFO - Creating container for astropy__astropy-14182...
+2026-09-02 14:25:47,917 - INFO - Container for astropy__astropy-14182 created: 3af01b1e89b465b25121bbad808dc0e2eed9a36fbd0930e0ab7ba4673b98b74f
+2026-09-02 14:25:48,169 - INFO - Container for astropy__astropy-14182 started: 3af01b1e89b465b25121bbad808dc0e2eed9a36fbd0930e0ab7ba4673b98b74f
+2026-09-02 14:25:48,169 - INFO - Intermediate patch for astropy__astropy-14182 written to logs/run_evaluation/powered-30-candidate-a1-astropy__astropy-14182/muse-spark-1.2-contributor-free/astropy__astropy-14182/patch.diff, now applying to container...
+2026-09-02 14:25:48,295 - INFO - Failed to apply patch to container: git apply --verbose
+2026-09-02 14:25:48,759 - INFO - Failed to apply patch to container: git apply --verbose --3way
+2026-09-02 14:25:49,056 - INFO - Failed to apply patch to container: git apply --verbose --reject
+2026-09-02 14:25:49,387 - INFO - >>>>> Applied Patch:
+patching file astropy/io/ascii/rst.py
+patch unexpectedly ends in middle of line
+
+2026-09-02 14:25:49,438 - INFO - Git diff before:
+diff --git a/astropy/io/ascii/rst.py b/astropy/io/ascii/rst.py
+index abdeba8ef..40936a5a0 100755
+--- a/astropy/io/ascii/rst.py
++++ b/astropy/io/ascii/rst.py
+@@ -1,9 +1,8 @@
+ # Licensed under a 3-clause BSD style license
+ """
+-:Author: Simon Gibbons (simongibbons@gmail.com)
++:Author: Simon Gibbons (simongibbons@gmail.com).
+ """
+ 
+-
+ from .core import DefaultSplitter
+ from .fixedwidth import (
+     FixedWidth,
+@@ -27,7 +26,6 @@ class SimpleRSTHeader(FixedWidthHeader):
+ 
+ 
+ class SimpleRSTData(FixedWidthData):
+-    start_line = 3
+     end_line = -1
+     splitter_class = FixedWidthTwoLineDataSplitter
+2026-09-02 14:25:49,438 - INFO - Eval script for astropy__astropy-14182 written to logs/run_evaluation/powered-30-candidate-a1-astropy__astropy-14182/muse-spark-1.2-contributor-free/astropy__astropy-14182/eval.sh; copying to container...
+2026-09-02 14:26:55,562 - INFO - Test runtime: 66.07 seconds
+2026-09-02 14:26:55,563 - INFO - Test output for astropy__astropy-14182 written to logs/run_evaluation/powered-30-candidate-a1-astropy__astropy-14182/muse-spark-1.2-contributor-free/astropy__astropy-14182/test_output.txt
+2026-09-02 14:26:55,642 - INFO - Git diff after:
+diff --git a/astropy/io/ascii/rst.py b/astropy/io/ascii/rst.py
+index abdeba8ef..40936a5a0 100755
+--- a/astropy/io/ascii/rst.py
++++ b/astropy/io/ascii/rst.py
+@@ -1,9 +1,8 @@
+ # Licensed under a 3-clause BSD style license
+ """
+-:Author: Simon Gibbons (simongibbons@gmail.com)
++:Author: Simon Gibbons (simongibbons@gmail.com).
+ """
+ 
+-
+ from .core import DefaultSplitter
+ from .fixedwidth import (
+     FixedWidth,
+@@ -27,7 +26,6 @@ class SimpleRSTHeader(FixedWidthHeader):
+ 
+ 
+ class SimpleRSTData(FixedWidthData):
+-    start_line = 3
+     end_line = -1
+     splitter_class = FixedWidthTwoLineDataSplitter
+2026-09-02 14:26:55,642 - INFO - Grading answer for astropy__astropy-14182...
+2026-09-02 14:26:55,653 - INFO - report: {'astropy__astropy-14182': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'infra_failure': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['astropy/io/ascii/tests/test_rst.py::test_rst_with_header_rows']}, 'PASS_TO_PASS': {'success': ['astropy/io/ascii/tests/test_rst.py::test_read_unbounded_right_column_header'], 'failure': ['astropy/io/ascii/tests/test_rst.py::test_read_normal', 'astropy/io/ascii/tests/test_rst.py::test_read_normal_names', 'astropy/io/ascii/tests/test_rst.py::test_read_normal_names_include', 'astropy/io/ascii/tests/test_rst.py::test_read_normal_exclude', 'astropy/io/ascii/tests/test_rst.py::test_read_unbounded_right_column', 'astropy/io/ascii/tests/test_rst.py::test_read_right_indented_table', 'astropy/io/ascii/tests/test_rst.py::test_trailing_spaces_in_row_definition', 'astropy/io/ascii/tests/test_rst.py::test_write_normal']}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for astropy__astropy-14182: resolved: False
+2026-09-02 14:26:55,653 - INFO - Attempting to stop container sweb.eval.astropy__astropy-14182.powered-30-candidate-a1-astropy__astropy-14182...
+2026-09-02 14:27:11,083 - INFO - Container sweb.eval.astropy__astropy-14182.powered-30-candidate-a1-astropy__astropy-14182 stopped successfully.
+2026-09-02 14:27:11,083 - INFO - Attempting to remove container sweb.eval.astropy__astropy-14182.powered-30-candidate-a1-astropy__astropy-14182...
+2026-09-02 14:27:11,292 - INFO - Container sweb.eval.astropy__astropy-14182.powered-30-candidate-a1-astropy__astropy-14182 removed successfully.

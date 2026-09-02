@@ -1,0 +1,81 @@
+2026-09-02 14:46:03,941 - INFO - Creating container for django__django-10924...
+2026-09-02 14:46:04,193 - INFO - Container for django__django-10924 created: e34f89880049127a33fbda2825a335bb023d885b60e4d3c9326baca7d272a7ee
+2026-09-02 14:46:04,454 - INFO - Container for django__django-10924 started: e34f89880049127a33fbda2825a335bb023d885b60e4d3c9326baca7d272a7ee
+2026-09-02 14:46:04,455 - INFO - Intermediate patch for django__django-10924 written to logs/run_evaluation/powered-30-candidate-a1-django__django-10924/muse-spark-1.2-contributor-free/django__django-10924/patch.diff, now applying to container...
+2026-09-02 14:46:04,609 - INFO - Failed to apply patch to container: git apply --verbose
+2026-09-02 14:46:05,785 - INFO - Failed to apply patch to container: git apply --verbose --3way
+2026-09-02 14:46:06,172 - INFO - Failed to apply patch to container: git apply --verbose --reject
+2026-09-02 14:46:06,365 - INFO - >>>>> Applied Patch:
+patching file django/db/models/fields/__init__.py
+patching file django/forms/fields.py
+Hunk #1 succeeded at 1090 (offset -1 lines).
+patch unexpectedly ends in middle of line
+
+2026-09-02 14:46:06,427 - INFO - Git diff before:
+diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py
+index 0c64748ccd..4d7eb11151 100755
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -1709,7 +1709,7 @@ class FilePathField(Field):
+ 
+     def formfield(self, **kwargs):
+         return super().formfield(**{
+-            'path': self.path,
++            'path': self.path() if callable(self.path) else self.path,
+             'match': self.match,
+             'recursive': self.recursive,
+             'form_class': forms.FilePathField,
+diff --git a/django/forms/fields.py b/django/forms/fields.py
+index a977256525..82241a9904 100755
+--- a/django/forms/fields.py
++++ b/django/forms/fields.py
+@@ -1090,8 +1090,9 @@ class FilePathField(ChoiceField):
+         if self.match is not None:
+             self.match_re = re.compile(self.match)
+ 
++        path = self.path() if callable(self.path) else self.path
+         if recursive:
+-            for root, dirs, files in sorted(os.walk(self.path)):
++            for root, dirs, files in sorted(os.walk(path)):
+                 if self.allow_files:
+                     for f in sorted(files):
+                         if self.match is None or self.match_re.search(f):
+2026-09-02 14:46:06,428 - INFO - Eval script for django__django-10924 written to logs/run_evaluation/powered-30-candidate-a1-django__django-10924/muse-spark-1.2-contributor-free/django__django-10924/eval.sh; copying to container...
+2026-09-02 14:46:12,621 - INFO - Test runtime: 6.14 seconds
+2026-09-02 14:46:12,622 - INFO - Test output for django__django-10924 written to logs/run_evaluation/powered-30-candidate-a1-django__django-10924/muse-spark-1.2-contributor-free/django__django-10924/test_output.txt
+2026-09-02 14:46:12,689 - INFO - Git diff after:
+diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py
+index 0c64748ccd..4d7eb11151 100755
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -1709,7 +1709,7 @@ class FilePathField(Field):
+ 
+     def formfield(self, **kwargs):
+         return super().formfield(**{
+-            'path': self.path,
++            'path': self.path() if callable(self.path) else self.path,
+             'match': self.match,
+             'recursive': self.recursive,
+             'form_class': forms.FilePathField,
+diff --git a/django/forms/fields.py b/django/forms/fields.py
+index a977256525..82241a9904 100755
+--- a/django/forms/fields.py
++++ b/django/forms/fields.py
+@@ -1090,8 +1090,9 @@ class FilePathField(ChoiceField):
+         if self.match is not None:
+             self.match_re = re.compile(self.match)
+ 
++        path = self.path() if callable(self.path) else self.path
+         if recursive:
+-            for root, dirs, files in sorted(os.walk(self.path)):
++            for root, dirs, files in sorted(os.walk(path)):
+                 if self.allow_files:
+                     for f in sorted(files):
+                         if self.match is None or self.match_re.search(f):
+2026-09-02 14:46:12,690 - INFO - Grading answer for django__django-10924...
+2026-09-02 14:46:12,702 - INFO - report: {'django__django-10924': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': True, 'infra_failure': False, 'tests_status': {'FAIL_TO_PASS': {'success': ['test_callable_path (model_fields.test_filepathfield.FilePathFieldTests)'], 'failure': []}, 'PASS_TO_PASS': {'success': ['test_path (model_fields.test_filepathfield.FilePathFieldTests)'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for django__django-10924: resolved: True
+2026-09-02 14:46:12,702 - INFO - Attempting to stop container sweb.eval.django__django-10924.powered-30-candidate-a1-django__django-10924...
+2026-09-02 14:46:28,179 - INFO - Container sweb.eval.django__django-10924.powered-30-candidate-a1-django__django-10924 stopped successfully.
+2026-09-02 14:46:28,179 - INFO - Attempting to remove container sweb.eval.django__django-10924.powered-30-candidate-a1-django__django-10924...
+2026-09-02 14:46:28,635 - INFO - Container sweb.eval.django__django-10924.powered-30-candidate-a1-django__django-10924 removed successfully.

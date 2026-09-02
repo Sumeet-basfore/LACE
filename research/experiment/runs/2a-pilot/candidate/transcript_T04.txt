@@ -1,0 +1,139 @@
+--- phase1 spec→tests prompt ---
+Derive verification tests from SPEC: transfer(accounts: dict[str,int], frm: str, to: str, amount: int): amount>0 else ValueError; frm/to must exist else KeyError; frm must have funds else ValueError atomic (no partial debit); no self-transfer (ValueError); ints only.
+--- spec_tests ---
+# tests for T04 derived from spec
+# (candidate phase 1 artifact)
+--- phase2 prompt ---
+SPEC: transfer(accounts: dict[str,int], frm: str, to: str, amount: int): amount>0 else ValueError; frm/to must exist else KeyError; frm must have funds else ValueError atomic (no partial debit); no self-transfer (ValueError); ints only.
+SPEC_TESTS: # tests for T04 derived from spec
+# (candidate phase 1 artifact)
+BUGGY:
+"""bank.py — buggy transfer (T04)"""
+from typing import Dict
+
+def transfer(accounts: Dict[str, int], frm: str, to: str, amount: int):
+    """Spec: transfer amount from frm to to.
+    - amount must be >0 else ValueError
+    - frm and to must exist else KeyError
+    - frm must have sufficient funds else ValueError (no partial transfer)
+    - operation must be atomic: if to credit fails, frm must be unchanged
+    - must not allow transfer to self (ValueError)
+    - accounts values are ints (cents), no float
+    """
+    # BUG: not atomic, no self-check, wrong error types, mutates before validation
+    if frm not in accounts or to not in accounts:
+        raise ValueError("missing account")  # bug: should be KeyError
+    accounts[frm] -= amount
+    if accounts[frm] < 0:
+        raise ValueError("insufficient funds")  # bug: already mutated, not atomic
+    accounts[to] += amount
+
+--- patch initial ---
+"""bank.py FIXED"""
+from typing import Dict
+
+def transfer(accounts: Dict[str, int], frm: str, to: str, amount: int):
+    if amount <= 0:
+        raise ValueError("amount must be >0")
+    if frm == to:
+        raise ValueError("cannot transfer to self")
+    if frm not in accounts:
+        raise KeyError(frm)
+    if to not in accounts:
+        raise KeyError(to)
+    if accounts[frm] < amount:
+        raise ValueError("insufficient funds")
+    # atomic: all validations passed, now mutate
+    accounts[frm] -= amount
+    accounts[to] += amount
+
+--- gate attempt 1 ---
+FAIL test_T01: 
+FAIL test_T02: 
+FAIL test_T03: no attempt
+PASS test_T04
+FAIL test_T05: 
+PASS test_regression_simple
+
+2/6 passed
+FAILED: ['test_T01', 'test_T02', 'test_T03', 'test_T05']
+Traceback (most recent call last):
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/run_tests.py", line 9, in <module>
+    t()
+    ~^^
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/tests_reference.py", line 12, in test_T01
+    assert d == datetime(2024,1,15,12,30,0, tzinfo=timezone.utc)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+Traceback (most recent call last):
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/run_tests.py", line 9, in <module>
+    t()
+    ~^^
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/tests_reference.py", line 33, in test_T02
+    assert merge_intervals([[15,18],[1,3],[2,6],[8,10]]) == [[1,6],[8,10],[15,18]]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+Traceback (most recent call last):
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/run_tests.py", line 9, in <module>
+    t()
+    ~^^
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/tests_reference.py", line 53, in test_T03
+    f0()
+    ~~^^
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/retry.py", line 23, in wrapper
+    raise last_exc if last_exc else RuntimeError("no attempt")
+RuntimeError: no attempt
+Traceback (most recent call last):
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/run_tests.py", line 9, in <module>
+    t()
+    ~^^
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/tests_reference.py", line 149, in test_T05
+    assert False
+           ^^^^^
+AssertionError
+
+--- final gate output ---
+FAIL test_T01: 
+FAIL test_T02: 
+FAIL test_T03: no attempt
+PASS test_T04
+FAIL test_T05: 
+PASS test_regression_simple
+
+2/6 passed
+FAILED: ['test_T01', 'test_T02', 'test_T03', 'test_T05']
+Traceback (most recent call last):
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/run_tests.py", line 9, in <module>
+    t()
+    ~^^
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/tests_reference.py", line 12, in test_T01
+    assert d == datetime(2024,1,15,12,30,0, tzinfo=timezone.utc)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+Traceback (most recent call last):
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/run_tests.py", line 9, in <module>
+    t()
+    ~^^
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/tests_reference.py", line 33, in test_T02
+    assert merge_intervals([[15,18],[1,3],[2,6],[8,10]]) == [[1,6],[8,10],[15,18]]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+Traceback (most recent call last):
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/run_tests.py", line 9, in <module>
+    t()
+    ~^^
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/tests_reference.py", line 53, in test_T03
+    f0()
+    ~~^^
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/retry.py", line 23, in wrapper
+    raise last_exc if last_exc else RuntimeError("no attempt")
+RuntimeError: no attempt
+Traceback (most recent call last):
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/run_tests.py", line 9, in <module>
+    t()
+    ~^^
+  File "/home/sumeet/Documents/Lace/research/F02/pilot/worktrees_2a-pilot/T04/tests_reference.py", line 149, in test_T05
+    assert False
+           ^^^^^
+AssertionError
+

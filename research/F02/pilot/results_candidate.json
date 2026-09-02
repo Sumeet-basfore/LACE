@@ -1,0 +1,62 @@
+[
+  {
+    "task": "T01",
+    "arm": "candidate",
+    "tokens": 501,
+    "latency_s": 0.057,
+    "task_pass": true,
+    "all_pass": false,
+    "regression_pass": true,
+    "output": "PASS test_T01\nFAIL test_T02: \nFAIL test_T03: no attempt\nFAIL test_T04: \nFAIL test_T05: \nPASS test_regression_simple\n\n2/6 passed\nFAILED: ['test_T02', 'test_T03', 'test_T04', 'test_T05']\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T01/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T01/tests_reference.py\", line 33, in test_T02\n    assert merge_intervals([[15,18],[1,3],[2,6],[8,10]]) == [[1,6],[8,10],[15,18]]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T01/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T01/tests_reference.py\", line 53, in test_T03\n    f0()\n    ~~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T01/retry.py\", line 23, in wrapper\n    raise last_exc if last_exc else RuntimeError(\"no attempt\")\nRuntimeError: no attempt\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T01/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T01/tests_reference.py\", line 113, in test_T04\n    assert ac == {\"a\": 10, \"b\": 50}\n           ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T01/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T01/tests_reference.py\", line 149, in test_T05\n    assert False\n           ^^^^^\nAssertionError\n",
+    "retries": 0,
+    "recovery": false
+  },
+  {
+    "task": "T02",
+    "arm": "candidate",
+    "tokens": 421,
+    "latency_s": 0.056,
+    "task_pass": true,
+    "all_pass": false,
+    "regression_pass": true,
+    "output": "FAIL test_T01: \nPASS test_T02\nFAIL test_T03: no attempt\nFAIL test_T04: \nFAIL test_T05: \nPASS test_regression_simple\n\n2/6 passed\nFAILED: ['test_T01', 'test_T03', 'test_T04', 'test_T05']\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T02/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T02/tests_reference.py\", line 12, in test_T01\n    assert d == datetime(2024,1,15,12,30,0, tzinfo=timezone.utc)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T02/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T02/tests_reference.py\", line 53, in test_T03\n    f0()\n    ~~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T02/retry.py\", line 23, in wrapper\n    raise last_exc if last_exc else RuntimeError(\"no attempt\")\nRuntimeError: no attempt\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T02/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T02/tests_reference.py\", line 113, in test_T04\n    assert ac == {\"a\": 10, \"b\": 50}\n           ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T02/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T02/tests_reference.py\", line 149, in test_T05\n    assert False\n           ^^^^^\nAssertionError\n",
+    "retries": 0,
+    "recovery": false
+  },
+  {
+    "task": "T03",
+    "arm": "candidate",
+    "tokens": 1158,
+    "latency_s": 0.124,
+    "task_pass": true,
+    "all_pass": false,
+    "regression_pass": true,
+    "output": "FAIL test_T01: \nFAIL test_T02: \nPASS test_T03\nFAIL test_T04: \nFAIL test_T05: \nPASS test_regression_simple\n\n2/6 passed\nFAILED: ['test_T01', 'test_T02', 'test_T04', 'test_T05']\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T03/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T03/tests_reference.py\", line 12, in test_T01\n    assert d == datetime(2024,1,15,12,30,0, tzinfo=timezone.utc)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T03/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T03/tests_reference.py\", line 33, in test_T02\n    assert merge_intervals([[15,18],[1,3],[2,6],[8,10]]) == [[1,6],[8,10],[15,18]]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T03/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T03/tests_reference.py\", line 113, in test_T04\n    assert ac == {\"a\": 10, \"b\": 50}\n           ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T03/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T03/tests_reference.py\", line 149, in test_T05\n    assert False\n           ^^^^^\nAssertionError\n",
+    "retries": 1,
+    "recovery": true
+  },
+  {
+    "task": "T04",
+    "arm": "candidate",
+    "tokens": 520,
+    "latency_s": 0.058,
+    "task_pass": true,
+    "all_pass": false,
+    "regression_pass": true,
+    "output": "FAIL test_T01: \nFAIL test_T02: \nFAIL test_T03: no attempt\nPASS test_T04\nFAIL test_T05: \nPASS test_regression_simple\n\n2/6 passed\nFAILED: ['test_T01', 'test_T02', 'test_T03', 'test_T05']\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T04/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T04/tests_reference.py\", line 12, in test_T01\n    assert d == datetime(2024,1,15,12,30,0, tzinfo=timezone.utc)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T04/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T04/tests_reference.py\", line 33, in test_T02\n    assert merge_intervals([[15,18],[1,3],[2,6],[8,10]]) == [[1,6],[8,10],[15,18]]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T04/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T04/tests_reference.py\", line 53, in test_T03\n    f0()\n    ~~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T04/retry.py\", line 23, in wrapper\n    raise last_exc if last_exc else RuntimeError(\"no attempt\")\nRuntimeError: no attempt\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T04/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T04/tests_reference.py\", line 149, in test_T05\n    assert False\n           ^^^^^\nAssertionError\n",
+    "retries": 0,
+    "recovery": false
+  },
+  {
+    "task": "T05",
+    "arm": "candidate",
+    "tokens": 477,
+    "latency_s": 0.058,
+    "task_pass": true,
+    "all_pass": false,
+    "regression_pass": true,
+    "output": "FAIL test_T01: \nFAIL test_T02: \nFAIL test_T03: no attempt\nFAIL test_T04: \nPASS test_T05\nPASS test_regression_simple\n\n2/6 passed\nFAILED: ['test_T01', 'test_T02', 'test_T03', 'test_T04']\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T05/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T05/tests_reference.py\", line 12, in test_T01\n    assert d == datetime(2024,1,15,12,30,0, tzinfo=timezone.utc)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T05/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T05/tests_reference.py\", line 33, in test_T02\n    assert merge_intervals([[15,18],[1,3],[2,6],[8,10]]) == [[1,6],[8,10],[15,18]]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T05/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T05/tests_reference.py\", line 53, in test_T03\n    f0()\n    ~~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T05/retry.py\", line 23, in wrapper\n    raise last_exc if last_exc else RuntimeError(\"no attempt\")\nRuntimeError: no attempt\nTraceback (most recent call last):\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T05/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/home/sumeet/Documents/Lace/research/F02/pilot/worktrees/T05/tests_reference.py\", line 113, in test_T04\n    assert ac == {\"a\": 10, \"b\": 50}\n           ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+    "retries": 0,
+    "recovery": false
+  }
+]

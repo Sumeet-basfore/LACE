@@ -1,0 +1,9 @@
+{
+  "run_id": "2a-pilot",
+  "condition": "baseline",
+  "model": "muse-spark-1.2-contributor-free",
+  "temperature": 0.2,
+  "repository_commit": "7b9850d9fab544fc4b6ce135100642e57bf35a54",
+  "started_at": "2026-09-02T07:39:39.185886Z",
+  "herdr_snapshot_present": true
+}

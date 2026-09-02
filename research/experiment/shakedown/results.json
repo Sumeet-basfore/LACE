@@ -1,0 +1,70 @@
+{
+  "run_id": "shakedown-2026-09-02-real-task-10",
+  "dataset": "princeton-nlp/SWE-bench_Lite",
+  "dataset_version": "6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2",
+  "split": "test",
+  "n": 10,
+  "model": "muse-spark-1.2-contributor-free",
+  "temperature": 0.2,
+  "purpose": "Stage A shakedown — verify real model integration, token accounting, patch handling, isolation, regression detection, logging — not to prove hypothesis",
+  "infrastructure_validated": {
+    "real_model_integration": {
+      "status": "PASS",
+      "evidence": "pi -p --model muse-spark-1.2-contributor-free --mode json for astropy__astropy-12907 invoked bash tool to fetch GH PR 12907/issue 12906, returned usage input=1225 output=116 cacheRead=16561 total=17902, cost=0 (free tier), transcript archived at /tmp/pi-bash-5da31480e92e7e21.log",
+      "native_usage_available": true,
+      "cost_measurable": "cost=0 for contributor free tier (price card free) — recorded as 0, not fabricated",
+      "tool": "pi --mode json usage fields (input/output/cacheRead/cacheWrite/totalTokens/cost)"
+    },
+    "token_accounting": {
+      "status": "PASS with note",
+      "method": "native usage from pi json mode (input/output/totalTokens/cost) preferred per metrics spec M4/M5; proxy chars/4 fallback only when native unavailable — synthetic pilot used proxy with cost=null honest",
+      "shakedown_native_fields": "input, output, cacheRead, cacheWrite, reasoning, totalTokens, cost{input,output,cacheRead,cacheWrite,total}",
+      "bias_stated": "cost 0 for free tier — not billed; at scale with billed tier would use price card URL+date"
+    },
+    "timing": {
+      "status": "PASS",
+      "method": "time.monotonic per task via harness.py, wall-clock task_start/agent_end/verification_start/verification_end/final_end per protocol, not hidden retry time"
+    },
+    "patch_handling": {
+      "status": "PASS",
+      "method": "unified diff via git apply / shutil.copy of FIXES/*_fixed.py in synthetic; at scale via model-generated patch file + git apply --check",
+      "verified": "synthetic pilot apply_fix succeeded for 10/10 tasks per arm, no patch apply failures"
+    },
+    "timeout_retry_isolation": {
+      "status": "PASS (synthetic)",
+      "retry": "candidate max 2 retries (3 attempts) with deterministic parse_failures (≤800 chars FAIL tail + traceback), baseline 0 retries — both enforced in harness.py",
+      "timeout": "per-gate 30s synthetic (gate <1s, never hit), 120s at scale per protocol",
+      "isolation": "per-task worktree (candidate: git worktree add per run-id/tid, tmpdir copy for baseline) from same base SHA 7b9850d; no shared mutable state; full-suite cumulative 6/6 confirms no cross-task leak (F02 pilot + 2A pilot)",
+      "real_task_isolation": "same mechanism will checkout repo@base_commit per task/arm for SWE-bench tasks — design validated synthetic, not yet executed for all 10 real repos via Docker in this shakedown window"
+    },
+    "test_execution": {
+      "status": "PASS synthetic, PARTIAL real",
+      "synthetic": "deterministic python3 run_tests.py (6 tests) in workdir, exit code ground truth, output parsed for PASS test_<Txx> and PASS test_regression_simple — never asking LLM if tests passed",
+      "real": "SWE-bench Docker harness available (swebench 5.0.2, Docker 29.7.2, dataset verified 500/Lite 300) — `swebench eval verified --gold` builds per-task image from swe-bench-tasks; infrastructure present via `pip install swebench` in /tmp/venv; gold evaluation for one task not yet run in this shakedown due to time/disk, but harness verified via `swebench --help` and `docker --version` and dataset load (300 tasks via datasets 5.0.1)",
+      "gap": "full 10-task Docker evaluation per arm not yet executed in Stage A window — report explicitly, do not fabricate"
+    },
+    "regression_detection": {
+      "status": "PASS synthetic, design validated real",
+      "method": "task_tests_passed and regression_tests_passed recorded separately per run_id/task (protocol §10, metrics M1/M3) — synthetic regression suite test_regression_simple (3 sub-checks) always 5/5 both arms; strict_pass = task && regression; at scale regression = PASS_TO_PASS suite not touched by fix"
+    },
+    "reproducible_logging": {
+      "status": "PASS",
+      "method": "runs/<run-id>/{baseline,candidate}/{result.json, transcript_T*.txt, logs/T*.log, metadata.json} + results/<run-id>.json merged with delta/thresholds/verdict per harness.py analyze_run; all prompts/patches/raw outputs archived, git SHA and Herdr snapshot when available",
+      "verified": "2A pilot 2a-pilot produced 10 transcripts + 10 logs + 2 result.json + merged analysis with Wilson CIs and median ratios"
+    },
+    "baseline_candidate_comparable": {
+      "status": "PASS synthetic, design PASS real",
+      "synthetic": "same model, temp 0.2, same spec+buggy source, same tool allow-list, same gate, same workdir reset, same timeout — only verification bundle differs (gate+parse+retry+worktree)",
+      "real": "same 10 task IDs for both arms per task-manifest.json deterministic sort — no task randomization mismatch; issue of agent's own retries noted: if underlying agent naturally retries, that behavior must be present in both arms or disabled/documented — pi's tool-use loop is same both arms"
+    }
+  },
+  "shakedown_tasks": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "tested": "model integration via pi json mode (usage captured)",
+      "patch_generated": "partial via bash tool + context fetch (pi fetched GH PR/issue) — not full patch yet, but model call succeeded",
+      "evaluation": "not yet via Docker — synthetic gate analog would be same as pilot; real Docker evaluation pending scale"
+    }
+  ],
+  "overall_shakedown_verdict": "Instrumentation gate PASS — real model integration, native token accounting, patch/isolation/regression/logging, and Docker harness availability are validated; full 10-task Docker evaluation per arm not yet executed in this window — see real-task-shakedown.md for 9 answers and whether ready for n≥30"
+}

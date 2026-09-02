@@ -1,0 +1,62 @@
+[
+  {
+    "task": "T01",
+    "arm": "baseline",
+    "tokens": 391,
+    "latency_s": 0.058,
+    "task_pass": true,
+    "all_pass": false,
+    "regression_pass": true,
+    "output": "PASS test_T01\nFAIL test_T02: \nFAIL test_T03: no attempt\nFAIL test_T04: \nFAIL test_T05: \nPASS test_regression_simple\n\n2/6 passed\nFAILED: ['test_T02', 'test_T03', 'test_T04', 'test_T05']\nTraceback (most recent call last):\n  File \"/tmp/baseline_T01_gal76o__/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T01_gal76o__/tests_reference.py\", line 33, in test_T02\n    assert merge_intervals([[15,18],[1,3],[2,6],[8,10]]) == [[1,6],[8,10],[15,18]]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T01_gal76o__/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T01_gal76o__/tests_reference.py\", line 53, in test_T03\n    f0()\n    ~~^^\n  File \"/tmp/baseline_T01_gal76o__/retry.py\", line 23, in wrapper\n    raise last_exc if last_exc else RuntimeError(\"no attempt\")\nRuntimeError: no attempt\nTraceback (most recent call last):\n  File \"/tmp/baseline_T01_gal76o__/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T01_gal76o__/tests_reference.py\", line 113, in test_T04\n    assert ac == {\"a\": 10, \"b\": 50}\n           ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T01_gal76o__/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T01_gal76o__/tests_reference.py\", line 149, in test_T05\n    assert False\n           ^^^^^\nAssertionError\n",
+    "retries": 0,
+    "recovery": false
+  },
+  {
+    "task": "T02",
+    "arm": "baseline",
+    "tokens": 333,
+    "latency_s": 0.056,
+    "task_pass": true,
+    "all_pass": false,
+    "regression_pass": true,
+    "output": "FAIL test_T01: \nPASS test_T02\nFAIL test_T03: no attempt\nFAIL test_T04: \nFAIL test_T05: \nPASS test_regression_simple\n\n2/6 passed\nFAILED: ['test_T01', 'test_T03', 'test_T04', 'test_T05']\nTraceback (most recent call last):\n  File \"/tmp/baseline_T02_zr00rshn/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T02_zr00rshn/tests_reference.py\", line 12, in test_T01\n    assert d == datetime(2024,1,15,12,30,0, tzinfo=timezone.utc)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T02_zr00rshn/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T02_zr00rshn/tests_reference.py\", line 53, in test_T03\n    f0()\n    ~~^^\n  File \"/tmp/baseline_T02_zr00rshn/retry.py\", line 23, in wrapper\n    raise last_exc if last_exc else RuntimeError(\"no attempt\")\nRuntimeError: no attempt\nTraceback (most recent call last):\n  File \"/tmp/baseline_T02_zr00rshn/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T02_zr00rshn/tests_reference.py\", line 113, in test_T04\n    assert ac == {\"a\": 10, \"b\": 50}\n           ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T02_zr00rshn/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T02_zr00rshn/tests_reference.py\", line 149, in test_T05\n    assert False\n           ^^^^^\nAssertionError\n",
+    "retries": 0,
+    "recovery": false
+  },
+  {
+    "task": "T03",
+    "arm": "baseline",
+    "tokens": 566,
+    "latency_s": 0.061,
+    "task_pass": false,
+    "all_pass": false,
+    "regression_pass": true,
+    "output": "FAIL test_T01: \nFAIL test_T02: \nFAIL test_T03: \nFAIL test_T04: \nFAIL test_T05: \nPASS test_regression_simple\n\n1/6 passed\nFAILED: ['test_T01', 'test_T02', 'test_T03', 'test_T04', 'test_T05']\nTraceback (most recent call last):\n  File \"/tmp/baseline_T03_6xhzeqwc/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T03_6xhzeqwc/tests_reference.py\", line 12, in test_T01\n    assert d == datetime(2024,1,15,12,30,0, tzinfo=timezone.utc)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T03_6xhzeqwc/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T03_6xhzeqwc/tests_reference.py\", line 33, in test_T02\n    assert merge_intervals([[15,18],[1,3],[2,6],[8,10]]) == [[1,6],[8,10],[15,18]]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T03_6xhzeqwc/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T03_6xhzeqwc/tests_reference.py\", line 81, in test_T03\n    assert len(calls) == 1\n           ^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T03_6xhzeqwc/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T03_6xhzeqwc/tests_reference.py\", line 113, in test_T04\n    assert ac == {\"a\": 10, \"b\": 50}\n           ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T03_6xhzeqwc/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T03_6xhzeqwc/tests_reference.py\", line 149, in test_T05\n    assert False\n           ^^^^^\nAssertionError\n",
+    "retries": 0,
+    "recovery": false
+  },
+  {
+    "task": "T04",
+    "arm": "baseline",
+    "tokens": 418,
+    "latency_s": 0.059,
+    "task_pass": true,
+    "all_pass": false,
+    "regression_pass": true,
+    "output": "FAIL test_T01: \nFAIL test_T02: \nFAIL test_T03: no attempt\nPASS test_T04\nFAIL test_T05: \nPASS test_regression_simple\n\n2/6 passed\nFAILED: ['test_T01', 'test_T02', 'test_T03', 'test_T05']\nTraceback (most recent call last):\n  File \"/tmp/baseline_T04_qpqc5xzp/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T04_qpqc5xzp/tests_reference.py\", line 12, in test_T01\n    assert d == datetime(2024,1,15,12,30,0, tzinfo=timezone.utc)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T04_qpqc5xzp/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T04_qpqc5xzp/tests_reference.py\", line 33, in test_T02\n    assert merge_intervals([[15,18],[1,3],[2,6],[8,10]]) == [[1,6],[8,10],[15,18]]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T04_qpqc5xzp/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T04_qpqc5xzp/tests_reference.py\", line 53, in test_T03\n    f0()\n    ~~^^\n  File \"/tmp/baseline_T04_qpqc5xzp/retry.py\", line 23, in wrapper\n    raise last_exc if last_exc else RuntimeError(\"no attempt\")\nRuntimeError: no attempt\nTraceback (most recent call last):\n  File \"/tmp/baseline_T04_qpqc5xzp/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T04_qpqc5xzp/tests_reference.py\", line 149, in test_T05\n    assert False\n           ^^^^^\nAssertionError\n",
+    "retries": 0,
+    "recovery": false
+  },
+  {
+    "task": "T05",
+    "arm": "baseline",
+    "tokens": 370,
+    "latency_s": 0.056,
+    "task_pass": true,
+    "all_pass": false,
+    "regression_pass": true,
+    "output": "FAIL test_T01: \nFAIL test_T02: \nFAIL test_T03: no attempt\nFAIL test_T04: \nPASS test_T05\nPASS test_regression_simple\n\n2/6 passed\nFAILED: ['test_T01', 'test_T02', 'test_T03', 'test_T04']\nTraceback (most recent call last):\n  File \"/tmp/baseline_T05_ga281_1_/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T05_ga281_1_/tests_reference.py\", line 12, in test_T01\n    assert d == datetime(2024,1,15,12,30,0, tzinfo=timezone.utc)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T05_ga281_1_/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T05_ga281_1_/tests_reference.py\", line 33, in test_T02\n    assert merge_intervals([[15,18],[1,3],[2,6],[8,10]]) == [[1,6],[8,10],[15,18]]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\nTraceback (most recent call last):\n  File \"/tmp/baseline_T05_ga281_1_/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T05_ga281_1_/tests_reference.py\", line 53, in test_T03\n    f0()\n    ~~^^\n  File \"/tmp/baseline_T05_ga281_1_/retry.py\", line 23, in wrapper\n    raise last_exc if last_exc else RuntimeError(\"no attempt\")\nRuntimeError: no attempt\nTraceback (most recent call last):\n  File \"/tmp/baseline_T05_ga281_1_/run_tests.py\", line 9, in <module>\n    t()\n    ~^^\n  File \"/tmp/baseline_T05_ga281_1_/tests_reference.py\", line 113, in test_T04\n    assert ac == {\"a\": 10, \"b\": 50}\n           ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+    "retries": 0,
+    "recovery": false
+  }
+]

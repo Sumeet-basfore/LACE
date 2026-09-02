@@ -1,0 +1,46 @@
+2026-09-02 14:22:01,606 - INFO - Image not found locally, attempting to pull...
+2026-09-02 14:22:15,274 - INFO - Creating container for astropy__astropy-14182...
+2026-09-02 14:22:15,745 - INFO - Container for astropy__astropy-14182 created: a770600574385f680b2c37963e666039b1fd43b8a7b467cb9ab74910b1d0791f
+2026-09-02 14:22:16,022 - INFO - Container for astropy__astropy-14182 started: a770600574385f680b2c37963e666039b1fd43b8a7b467cb9ab74910b1d0791f
+2026-09-02 14:22:16,022 - INFO - Intermediate patch for astropy__astropy-14182 written to logs/run_evaluation/powered-30-baseline-astropy__astropy-14182/muse-spark-1.2-contributor-free/astropy__astropy-14182/patch.diff, now applying to container...
+2026-09-02 14:22:16,145 - INFO - Failed to apply patch to container: git apply --verbose
+2026-09-02 14:22:16,591 - INFO - Failed to apply patch to container: git apply --verbose --3way
+2026-09-02 14:22:16,867 - INFO - Failed to apply patch to container: git apply --verbose --reject
+2026-09-02 14:22:17,171 - INFO - >>>>> Applied Patch:
+patching file astropy/io/ascii/rst.py
+patch unexpectedly ends in middle of line
+
+2026-09-02 14:22:17,224 - INFO - Git diff before:
+diff --git a/astropy/io/ascii/rst.py b/astropy/io/ascii/rst.py
+index abdeba8ef..9af3b352d 100755
+--- a/astropy/io/ascii/rst.py
++++ b/astropy/io/ascii/rst.py
+@@ -27,7 +27,6 @@ class SimpleRSTHeader(FixedWidthHeader):
+ 
+ 
+ class SimpleRSTData(FixedWidthData):
+-    start_line = 3
+     end_line = -1
+     splitter_class = FixedWidthTwoLineDataSplitter
+2026-09-02 14:22:17,224 - INFO - Eval script for astropy__astropy-14182 written to logs/run_evaluation/powered-30-baseline-astropy__astropy-14182/muse-spark-1.2-contributor-free/astropy__astropy-14182/eval.sh; copying to container...
+2026-09-02 14:23:22,544 - INFO - Test runtime: 65.25 seconds
+2026-09-02 14:23:22,548 - INFO - Test output for astropy__astropy-14182 written to logs/run_evaluation/powered-30-baseline-astropy__astropy-14182/muse-spark-1.2-contributor-free/astropy__astropy-14182/test_output.txt
+2026-09-02 14:23:22,632 - INFO - Git diff after:
+diff --git a/astropy/io/ascii/rst.py b/astropy/io/ascii/rst.py
+index abdeba8ef..9af3b352d 100755
+--- a/astropy/io/ascii/rst.py
++++ b/astropy/io/ascii/rst.py
+@@ -27,7 +27,6 @@ class SimpleRSTHeader(FixedWidthHeader):
+ 
+ 
+ class SimpleRSTData(FixedWidthData):
+-    start_line = 3
+     end_line = -1
+     splitter_class = FixedWidthTwoLineDataSplitter
+2026-09-02 14:23:22,632 - INFO - Grading answer for astropy__astropy-14182...
+2026-09-02 14:23:22,648 - INFO - report: {'astropy__astropy-14182': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'infra_failure': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['astropy/io/ascii/tests/test_rst.py::test_rst_with_header_rows']}, 'PASS_TO_PASS': {'success': ['astropy/io/ascii/tests/test_rst.py::test_read_unbounded_right_column_header'], 'failure': ['astropy/io/ascii/tests/test_rst.py::test_read_normal', 'astropy/io/ascii/tests/test_rst.py::test_read_normal_names', 'astropy/io/ascii/tests/test_rst.py::test_read_normal_names_include', 'astropy/io/ascii/tests/test_rst.py::test_read_normal_exclude', 'astropy/io/ascii/tests/test_rst.py::test_read_unbounded_right_column', 'astropy/io/ascii/tests/test_rst.py::test_read_right_indented_table', 'astropy/io/ascii/tests/test_rst.py::test_trailing_spaces_in_row_definition', 'astropy/io/ascii/tests/test_rst.py::test_write_normal']}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for astropy__astropy-14182: resolved: False
+2026-09-02 14:23:22,648 - INFO - Attempting to stop container sweb.eval.astropy__astropy-14182.powered-30-baseline-astropy__astropy-14182...
+2026-09-02 14:23:38,098 - INFO - Container sweb.eval.astropy__astropy-14182.powered-30-baseline-astropy__astropy-14182 stopped successfully.
+2026-09-02 14:23:38,098 - INFO - Attempting to remove container sweb.eval.astropy__astropy-14182.powered-30-baseline-astropy__astropy-14182...
+2026-09-02 14:23:38,278 - INFO - Container sweb.eval.astropy__astropy-14182.powered-30-baseline-astropy__astropy-14182 removed successfully.

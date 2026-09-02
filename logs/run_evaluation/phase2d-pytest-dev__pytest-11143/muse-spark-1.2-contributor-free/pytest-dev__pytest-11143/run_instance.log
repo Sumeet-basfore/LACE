@@ -1,0 +1,27 @@
+2026-09-02 18:49:54,183 - INFO - Creating container for pytest-dev__pytest-11143...
+2026-09-02 18:49:54,409 - INFO - Container for pytest-dev__pytest-11143 created: 0b8f51f67bf0bf9b1ebf4675153c8686663d65306e22229148e78e266e0fc972
+2026-09-02 18:49:54,680 - INFO - Container for pytest-dev__pytest-11143 started: 0b8f51f67bf0bf9b1ebf4675153c8686663d65306e22229148e78e266e0fc972
+2026-09-02 18:49:54,681 - INFO - Intermediate patch for pytest-dev__pytest-11143 written to logs/run_evaluation/phase2d-pytest-dev__pytest-11143/muse-spark-1.2-contributor-free/pytest-dev__pytest-11143/patch.diff, now applying to container...
+2026-09-02 18:49:54,849 - INFO - Failed to apply patch to container: git apply --verbose
+2026-09-02 18:49:55,164 - INFO - Failed to apply patch to container: git apply --verbose --3way
+2026-09-02 18:49:55,354 - INFO - Failed to apply patch to container: git apply --verbose --reject
+2026-09-02 18:49:55,545 - INFO - Failed to apply patch to container: patch --batch --forward --fuzz=5 -p1 -i
+2026-09-02 18:49:55,615 - INFO - >>>>> Patch Apply Failed:
+patch unexpectedly ends in middle of line
+patch: **** Only garbage was found in the patch input.
+
+2026-09-02 18:49:55,617 - INFO - Traceback (most recent call last):
+  File "/tmp/venv2/lib/python3.14/site-packages/swebench/harness/run_evaluation.py", line 333, in run_instance
+    raise EvaluationError(
+    ...<3 lines>...
+    )
+swebench.harness.utils.EvaluationError: Error in evaluation for pytest-dev__pytest-11143: >>>>> Patch Apply Failed:
+patch unexpectedly ends in middle of line
+patch: **** Only garbage was found in the patch input.
+
+Check (logs/run_evaluation/phase2d-pytest-dev__pytest-11143/muse-spark-1.2-contributor-free/pytest-dev__pytest-11143/run_instance.log) for more information.
+
+2026-09-02 18:49:55,617 - INFO - Attempting to stop container sweb.eval.pytest-dev__pytest-11143.phase2d-pytest-dev__pytest-11143...
+2026-09-02 18:50:10,903 - INFO - Container sweb.eval.pytest-dev__pytest-11143.phase2d-pytest-dev__pytest-11143 stopped successfully.
+2026-09-02 18:50:10,903 - INFO - Attempting to remove container sweb.eval.pytest-dev__pytest-11143.phase2d-pytest-dev__pytest-11143...
+2026-09-02 18:50:11,031 - INFO - Container sweb.eval.pytest-dev__pytest-11143.phase2d-pytest-dev__pytest-11143 removed successfully.
