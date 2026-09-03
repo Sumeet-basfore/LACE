@@ -1,0 +1,35 @@
+[
+  {
+    "instance_id": "pallets__flask-4992",
+    "repo": "pallets/flask",
+    "base_commit": "4c288bc97ea371817199908d0d9b12de9dae327e",
+    "condition": "baseline",
+    "model": "muse-spark-1.2-contributor-free",
+    "attempts": 1,
+    "retries": 0,
+    "resolved": true,
+    "infra_failure": false,
+    "failure_class": "NONE",
+    "verification_layer": "full",
+    "totalTokens": 182754,
+    "cacheRead": 178673,
+    "latency_seconds": 87.13,
+    "pi_latency": 59.36,
+    "verification_latency": 27.76,
+    "started_at": "2026-09-03T12:31:11.096516Z",
+    "finished_at": "2026-09-03T12:32:38.222938Z",
+    "patch_empty": false,
+    "token_usage": {
+      "input": 3184,
+      "output": 897,
+      "totalTokens": 182754,
+      "cacheRead": 178673,
+      "cacheWrite": 0,
+      "reasoning": 439,
+      "cost": 0
+    },
+    "evaluation_run_id": "phase2d-3ef6f198fd79d1db-baseline-a1-pallets__flask-4992-20260903T123210465114Z-523587cd7e9a",
+    "evaluation_fresh": true,
+    "evaluation_cache_hit": false
+  }
+]

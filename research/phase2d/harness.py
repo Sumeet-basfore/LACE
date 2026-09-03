@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json, subprocess, pathlib, time, datetime, hashlib, re, tempfile, shutil, glob, os, sys
+import json, subprocess, pathlib, time, datetime, hashlib, re, tempfile, shutil, glob, os, sys, uuid
 
 MANIFEST = pathlib.Path("research/phase2d/manifest.json")
 DATASET = "lite"
@@ -8,6 +8,16 @@ PROVIDER = "opencode"
 OUT_ROOT = pathlib.Path("research/phase2d/raw")
 RESULTS = pathlib.Path("research/phase2d/run-state")
 MANIFEST_HASH = hashlib.sha256(MANIFEST.read_bytes()).hexdigest()[:16]
+SWE = shutil.which("swebench") or "/tmp/venv2/bin/swebench"
+
+
+def configure_final_one_task_run():
+    """Final one-task validation: manifest-smoke.json, fresh output tree."""
+    global MANIFEST, OUT_ROOT, RESULTS, MANIFEST_HASH
+    MANIFEST = pathlib.Path("research/phase2d/manifest-smoke.json")
+    OUT_ROOT = pathlib.Path("research/phase2d/raw-final-one-task")
+    RESULTS = pathlib.Path("research/phase2d/run-state-final-one-task")
+    MANIFEST_HASH = hashlib.sha256(MANIFEST.read_bytes()).hexdigest()[:16]
 
 ZERO_USAGE = {"input": 0, "output": 0, "totalTokens": 0, "cacheRead": 0, "cacheWrite": 0, "reasoning": 0, "cost": 0}
 
@@ -147,6 +157,24 @@ def extract_patch(assistant_text, raw_stdout=""):
     return patch
 
 
+def normalize_patch(patch):
+    """Ensure non-empty patches end with exactly one trailing newline for git apply."""
+    if not patch:
+        return patch
+    if patch.endswith("\n"):
+        return patch
+    return patch + "\n"
+
+
+def patch_was_normalized(raw_patch):
+    """True when normalize_patch would append a trailing newline."""
+    return bool(raw_patch) and not raw_patch.endswith("\n")
+
+
+def patch_normalization_fields(raw_patch):
+    return {"patch_normalized": patch_was_normalized(raw_patch)}
+
+
 def parse_pi_stdout(stdout):
     assistant_text = ""
     last_usage = None
@@ -237,11 +265,11 @@ def pi_patch(problem_statement, repo, iid, feedback=None, targeted=False, failin
             "exit_code": exit_code,
             "stderr": err,
         }
-        return "", dict(ZERO_USAGE), f"TIMEOUT: {err}", latency, err, timed_out, provider_failure
+        return "", dict(ZERO_USAGE), f"TIMEOUT: {err}", latency, err, timed_out, provider_failure, ""
 
     provider_class, provider_msg = classify_provider_failure(exit_code, err, out, timed_out=False)
     assistant_text, last_usage = parse_pi_stdout(out)
-    patch = extract_patch(assistant_text, out)
+    raw_patch = extract_patch(assistant_text, out)
     transcript = assistant_text[:8000] if assistant_text else out[:8000]
 
     provider_failure = None
@@ -257,24 +285,152 @@ def pi_patch(problem_statement, repo, iid, feedback=None, targeted=False, failin
         if provider_msg:
             transcript = f"PROVIDER_FAILURE: {provider_class}\n{provider_msg}\n\n{transcript}"
     else:
+        patch = normalize_patch(raw_patch)
         usage = usage_from_pi(last_usage)
 
-    return patch, usage, transcript, latency, err, timed_out, provider_failure
+    return patch, usage, transcript, latency, err, timed_out, provider_failure, raw_patch
 
 
-def check_patch(patch):
+def validate_patch_format(patch):
+    """Local structural validation only (no testbed)."""
     if not patch.strip():
         return "EMPTY_OUTPUT"
     if "diff --git" not in patch or "@@" not in patch:
         return "MODEL_OUTPUT_INVALID"
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.patch', delete=False) as tf:
-        tf.write(patch)
-        tf.flush()
-        r = subprocess.run(["patch", "--dry-run", "-p1", "-i", tf.name], capture_output=True, text=True, timeout=5)
-        os.unlink(tf.name)
-        if r.returncode != 0:
-            return "MODEL_OUTPUT_INVALID"
     return None
+
+
+def check_patch(patch):
+    """Backward-compatible alias for format-only validation."""
+    return validate_patch_format(patch)
+
+
+def _write_temp_patch(patch):
+    tf = tempfile.NamedTemporaryFile(mode="w", suffix=".patch", delete=False)
+    tf.write(patch)
+    tf.flush()
+    tf.close()
+    return tf.name
+
+
+def _docker_testbed_run(image, patch_path, inner_bash, timeout=300):
+    cmd = [
+        "docker", "run", "--rm",
+        "-v", f"{patch_path}:/tmp/patch:ro",
+        "--entrypoint", "bash", image, "-c", inner_bash,
+    ]
+    return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+
+
+def detect_docker_infra(output, returncode=None):
+    combined = (output or "").lower()
+    markers = (
+        "unable to find image",
+        "docker: error",
+        "error response from daemon",
+        "cannot connect to the docker daemon",
+        "permission denied while trying to connect",
+    )
+    return any(m in combined for m in markers)
+
+
+def apply_check_in_testbed(iid, patch, image=None, timeout=120):
+    fmt = validate_patch_format(patch)
+    if fmt:
+        return fmt, ""
+    if image is None:
+        image, _, _ = get_image_for_instance(iid)
+    patch_path = _write_temp_patch(patch)
+    try:
+        inner = "cd /testbed && git apply --check /tmp/patch 2>&1; echo EXIT:$?"
+        r = _docker_testbed_run(image, patch_path, inner, timeout=timeout)
+        out = (r.stdout or "") + (r.stderr or "")
+        if detect_docker_infra(out, r.returncode):
+            return "INFRA_FAILURE", out
+        lines = out.strip().splitlines()
+        exit_m = re.search(r"EXIT:(\d+)\s*$", lines[-1] if lines else "")
+        inner_rc = int(exit_m.group(1)) if exit_m else r.returncode
+        if inner_rc == 0:
+            return None, out
+        return "MODEL_OUTPUT_INVALID", out
+    finally:
+        os.unlink(patch_path)
+
+
+def build_pytest_k_expr(fail_to_pass):
+    k_parts = []
+    for t in fail_to_pass:
+        name = t.split("::")[-1].split("[")[0]
+        k_parts.append(name)
+    return " or ".join(sorted(set(k_parts)))
+
+
+def parse_pytest_output(combined):
+    text = combined or ""
+    lower = text.lower()
+    if detect_docker_infra(text):
+        return {"status": "infra_failure", "passed_count": 0, "failed_count": 0, "error_count": 0, "failed_lines": [], "summary_line": ""}
+    if "no tests ran" in lower or re.search(r"collected\s+0\s+items", lower):
+        return {"status": "no_tests_collected", "passed_count": 0, "failed_count": 0, "error_count": 0, "failed_lines": [], "summary_line": next((ln for ln in text.splitlines() if "no tests ran" in ln.lower() or "collected 0 items" in ln.lower()), "")}
+    failed_lines = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if re.search(r"\bFAILED\b", stripped) and ("::" in stripped or stripped.startswith("FAILED")):
+            failed_lines.append(stripped)
+    summary_line = ""
+    passed_count = failed_count = error_count = 0
+    for line in reversed(text.splitlines()):
+        s = line.strip()
+        if not s.startswith("="):
+            continue
+        if not any(k in s.lower() for k in ("passed", "failed", "error", "no tests ran")):
+            continue
+        summary_line = s
+        m = re.search(r"(\d+)\s+failed", s, re.I)
+        if m:
+            failed_count = int(m.group(1))
+        m = re.search(r"(\d+)\s+passed", s, re.I)
+        if m:
+            passed_count = int(m.group(1))
+        m = re.search(r"(\d+)\s+error", s, re.I)
+        if m:
+            error_count = int(m.group(1))
+        break
+    if error_count > 0 or failed_count > 0 or failed_lines:
+        return {"status": "targeted_failed", "passed_count": passed_count, "failed_count": failed_count, "error_count": error_count, "failed_lines": failed_lines, "summary_line": summary_line}
+    if passed_count > 0 and failed_count == 0 and error_count == 0:
+        return {"status": "all_passed", "passed_count": passed_count, "failed_count": 0, "error_count": 0, "failed_lines": [], "summary_line": summary_line}
+    return {"status": "unknown", "passed_count": passed_count, "failed_count": failed_count, "error_count": error_count, "failed_lines": failed_lines, "summary_line": summary_line}
+
+
+def extract_failure_evidence(pytest_output, parsed):
+    failing_test = ""
+    assertion = ""
+    traceback = ""
+    if parsed["status"] == "no_tests_collected":
+        failing_test = parsed.get("summary_line") or "no tests collected"
+        assertion = "pytest collected zero tests for -k expression"
+        traceback = pytest_output[-2000:]
+        return failing_test, assertion, traceback
+    if parsed["failed_lines"]:
+        failing_test = parsed["failed_lines"][0]
+    elif parsed.get("summary_line"):
+        failing_test = parsed["summary_line"]
+    lines = pytest_output.splitlines()
+    for i, line in enumerate(lines):
+        if "AssertionError" in line:
+            assertion = line.strip()
+            traceback = "\n".join(lines[max(0, i - 5): i + 8])
+            break
+        if not assertion and re.search(r"\bassert\b", line) and ("Error" in line or "error" in line.lower()):
+            assertion = line.strip()
+            traceback = "\n".join(lines[max(0, i - 5): i + 8])
+    if not traceback and failing_test:
+        for i, line in enumerate(lines):
+            if failing_test.split()[0] in line:
+                traceback = "\n".join(lines[max(0, i): i + 15])
+                break
+    return failing_test, assertion, traceback
 
 
 def should_stop_retries(provider_failure):
@@ -283,8 +439,9 @@ def should_stop_retries(provider_failure):
     return provider_failure["failure_class"] in NON_RETRYABLE_PROVIDER_FAILURES
 
 
-def write_transcript(path, patch, transcript, err, provider_failure=None):
-    parts = [f"PATCH:\n{patch[:10000]}", f"TRANSCRIPT:\n{transcript}"]
+def write_transcript(path, patch, transcript, err, provider_failure=None, raw_patch=None):
+    forensic_patch = raw_patch if raw_patch is not None else patch
+    parts = [f"PATCH:\n{forensic_patch[:10000]}", f"TRANSCRIPT:\n{transcript}"]
     if provider_failure:
         parts.append(
             "PROVIDER_FAILURE:\n"
@@ -314,88 +471,252 @@ def get_image_for_instance(iid):
 
 def targeted_eval(iid, patch, fail_to_pass):
     image, _, _ = get_image_for_instance(iid)
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.patch', delete=False) as tf:
-        tf.write(patch)
-        tf.flush()
-        patch_path = tf.name
-    k_parts = []
-    for t in fail_to_pass:
-        name = t.split("::")[-1].split("[")[0]
-        k_parts.append(name)
-    k_expr = " or ".join(sorted(set(k_parts)))
+    patch_path = _write_temp_patch(patch)
+    k_expr = build_pytest_k_expr(fail_to_pass)
+    inner = (
+        f"cd /testbed && git apply /tmp/patch 2>&1 && "
+        f"python -m pytest -k \"{k_expr}\" -v 2>&1; echo EXIT:$?"
+    )
     start = time.monotonic()
-    cmd = [
-        "docker", "run", "--rm", "-v", f"{patch_path}:/tmp/patch", "--entrypoint", "bash", image, "-c",
-        f"cd /testbed && git apply /tmp/patch 2>&1 && python -m pytest -k \"{k_expr}\" -v 2>&1; echo EXIT:$?",
-    ]
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+    try:
+        r = _docker_testbed_run(image, patch_path, inner, timeout=300)
+    finally:
+        os.unlink(patch_path)
     latency = time.monotonic() - start
-    os.unlink(patch_path)
-    out = r.stdout + r.stderr
-    passed = "FAILED" not in out and ("1 passed" in out or "passed" in out)
-    if "FAILED" in out:
-        passed = False
-    elif "passed" in out:
-        passed = True
+    out = (r.stdout or "") + (r.stderr or "")
+    parsed = parse_pytest_output(out)
+    infra = parsed["status"] == "infra_failure"
+    passed = parsed["status"] == "all_passed"
+    failing_test, assertion, traceback = extract_failure_evidence(out, parsed)
+    if parsed["status"] == "no_tests_collected" and not failing_test:
+        failing_test = "no tests collected"
+    return passed, failing_test, assertion, traceback, out, latency, infra
+
+
+def get_evaluation_experiment_id():
+    """Stable experiment/session identifier for evaluation run IDs."""
+    return MANIFEST_HASH
+
+
+def _sanitize_run_id_component(value):
+    return re.sub(r"[^a-zA-Z0-9._-]+", "-", str(value))
+
+
+def build_evaluation_run_id(experiment_id, arm, attempt, instance_id, *, now=None, unique=None):
+    """
+    Unique SWE-bench run ID per full_eval invocation.
+    Includes experiment id, arm, attempt, instance, timestamp, and UUID fragment.
+    """
+    ts = (now or datetime.datetime.utcnow()).strftime("%Y%m%dT%H%M%S%fZ")
+    uid = unique or uuid.uuid4().hex[:12]
+    return "-".join([
+        "phase2d",
+        _sanitize_run_id_component(experiment_id),
+        _sanitize_run_id_component(arm),
+        f"a{attempt}",
+        _sanitize_run_id_component(instance_id),
+        ts,
+        uid,
+    ])
+
+
+def evaluation_report_path(report_dir, model, run_id):
+    model_slug = model.replace("/", "__")
+    return pathlib.Path(report_dir) / f"{model_slug}.{run_id}.json"
+
+
+def detect_evaluation_cache_hit(stdout, stderr):
+    combined = f"{stdout or ''}\n{stderr or ''}"
+    return "instances already run, skipping" in combined
+
+
+def _patch_digest(patch):
+    return hashlib.sha256((patch or "").encode()).hexdigest()
+
+
+def validate_evaluation_freshness(
+    *,
+    stdout,
+    stderr,
+    report_path,
+    run_id,
+    instance_id,
+    patch,
+    patch_log_path,
+    invocation_started_at,
+):
+    """
+    Fail-closed validation that an evaluation report belongs to this invocation.
+    Returns dict with fresh, cache_hit, invalid_reason, patch_verified.
+    """
+    cache_hit = detect_evaluation_cache_hit(stdout, stderr)
+    if cache_hit:
+        return {
+            "fresh": False,
+            "cache_hit": True,
+            "invalid_reason": "EVALUATION_CACHE_HIT",
+            "patch_verified": False,
+        }
+
+    report_path = pathlib.Path(report_path) if report_path else None
+    if report_path is None or not report_path.exists():
+        return {
+            "fresh": False,
+            "cache_hit": False,
+            "invalid_reason": "EVALUATION_INVALID",
+            "patch_verified": False,
+        }
+
+    if run_id not in report_path.name:
+        return {
+            "fresh": False,
+            "cache_hit": False,
+            "invalid_reason": "EVALUATION_INVALID",
+            "patch_verified": False,
+        }
+
+    report_mtime = report_path.stat().st_mtime
+    if report_mtime < invocation_started_at - 1.0:
+        return {
+            "fresh": False,
+            "cache_hit": False,
+            "invalid_reason": "EVALUATION_INVALID",
+            "patch_verified": False,
+        }
+
+    patch_verified = False
+    patch_log_path = pathlib.Path(patch_log_path) if patch_log_path else None
+    if patch_log_path and patch_log_path.exists():
+        patch_verified = _patch_digest(patch_log_path.read_text()) == _patch_digest(patch)
     else:
-        passed = False
-    failing_test = ""
-    assertion = ""
-    traceback = ""
-    if not passed:
-        for line in out.splitlines():
-            if "FAILED" in line:
-                failing_test = line.strip()
-                break
-        for i, line in enumerate(out.splitlines()):
-            if "AssertionError" in line or "assert" in line:
-                assertion = line.strip()
-                traceback = "\n".join(out.splitlines()[max(0, i - 5):i + 5])
-                break
-    infra = "Unable to find image" in out or "docker: Error" in out
-    return passed, failing_test, assertion, traceback, out[-4000:], latency, infra
+        combined = f"{stdout or ''}\n{stderr or ''}"
+        if "No instances to run." in combined and "Running " not in combined:
+            return {
+                "fresh": False,
+                "cache_hit": False,
+                "invalid_reason": "EVALUATION_INVALID",
+                "patch_verified": False,
+            }
+        patch_verified = bool((patch or "").strip())
+
+    if not patch_verified:
+        return {
+            "fresh": False,
+            "cache_hit": False,
+            "invalid_reason": "EVALUATION_INVALID",
+            "patch_verified": False,
+        }
+
+    try:
+        report = json.loads(report_path.read_text())
+    except json.JSONDecodeError:
+        return {
+            "fresh": False,
+            "cache_hit": False,
+            "invalid_reason": "EVALUATION_INVALID",
+            "patch_verified": False,
+        }
+
+    if instance_id not in report.get("submitted_ids", []):
+        return {
+            "fresh": False,
+            "cache_hit": False,
+            "invalid_reason": "EVALUATION_INVALID",
+            "patch_verified": False,
+        }
+
+    return {
+        "fresh": True,
+        "cache_hit": False,
+        "invalid_reason": None,
+        "patch_verified": True,
+    }
 
 
-def full_eval(iid, patch):
+def evaluation_failure_class(eval_meta):
+    if eval_meta.get("evaluation_fresh"):
+        return None
+    if eval_meta.get("evaluation_cache_hit"):
+        return "EVALUATION_CACHE_HIT"
+    return eval_meta.get("evaluation_invalid_reason") or "EVALUATION_INVALID"
+
+
+def evaluation_result_fields(eval_meta):
+    return {
+        "evaluation_run_id": eval_meta["evaluation_run_id"],
+        "evaluation_fresh": eval_meta["evaluation_fresh"],
+        "evaluation_cache_hit": eval_meta["evaluation_cache_hit"],
+    }
+
+
+def full_eval(iid, patch, arm, attempt=1, experiment_id=None):
+    experiment_id = experiment_id or get_evaluation_experiment_id()
+    run_id = build_evaluation_run_id(experiment_id, arm, attempt, iid)
+    work_dir = pathlib.Path(tempfile.mkdtemp(prefix=f"phase2d-eval-{arm}-a{attempt}-"))
+    preds_path = work_dir / "pred.jsonl"
+    report_path = evaluation_report_path(work_dir, MODEL, run_id)
+    model_slug = MODEL.replace("/", "__")
+    invocation_started_at = time.time()
+
     preds = [{"instance_id": iid, "model_patch": patch, "model_name_or_path": MODEL}]
-    tmpdir = tempfile.mkdtemp(prefix="pred_")
-    preds_path = pathlib.Path(tmpdir) / "pred.jsonl"
     with open(preds_path, "w") as f:
         for p in preds:
             f.write(json.dumps(p) + "\n")
-    run_id = f"phase2d-{iid}"
-    cmd = ["/tmp/venv2/bin/swebench", "eval", DATASET, "-p", str(preds_path), "--run-id", run_id, "-i", iid, "--timeout", "300"]
+
+    cmd = [
+        SWE, "eval", DATASET,
+        "-p", str(preds_path),
+        "--run-id", run_id,
+        "-i", iid,
+        "--timeout", "300",
+        "--report-dir", str(work_dir),
+    ]
     start = time.monotonic()
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=600, cwd=str(work_dir))
     latency = time.monotonic() - start
+
+    patch_log_path = work_dir / "logs" / "run_evaluation" / run_id / model_slug / iid / "patch.diff"
+    validation = validate_evaluation_freshness(
+        stdout=r.stdout,
+        stderr=r.stderr,
+        report_path=report_path,
+        run_id=run_id,
+        instance_id=iid,
+        patch=patch,
+        patch_log_path=patch_log_path,
+        invocation_started_at=invocation_started_at,
+    )
+
     report = None
-    for cand in [f"{run_id}.json"]:
-        if pathlib.Path(cand).exists():
-            try:
-                report = json.loads(pathlib.Path(cand).read_text())
-                break
-            except json.JSONDecodeError:
-                pass
-    if report is None:
-        for jf in glob.glob("*.json"):
-            try:
-                j = json.loads(pathlib.Path(jf).read_text())
-                if j.get("submitted_ids") and iid in j.get("submitted_ids", []):
-                    report = j
-                    break
-            except json.JSONDecodeError:
-                pass
     resolved = False
     infra = False
-    if report:
-        resolved = iid in report.get("resolved_ids", [])
-        infra = iid in report.get("infra_failure_ids", [])
-    else:
-        resolved = "1 resolved" in r.stdout
-    shutil.rmtree(tmpdir, ignore_errors=True)
-    for f in glob.glob(f"{run_id}.json"):
-        pathlib.Path(f).unlink(missing_ok=True)
-    return resolved, infra, report, r.stdout[-4000:] + r.stderr[-2000:], latency
+    if validation["fresh"] and report_path.exists():
+        try:
+            report = json.loads(report_path.read_text())
+            resolved = iid in report.get("resolved_ids", [])
+            infra = iid in report.get("infra_failure_ids", [])
+        except json.JSONDecodeError:
+            validation = {
+                **validation,
+                "fresh": False,
+                "invalid_reason": "EVALUATION_INVALID",
+            }
+
+    if not validation["fresh"]:
+        resolved = False
+        infra = False
+
+    eval_meta = {
+        "evaluation_run_id": run_id,
+        "evaluation_fresh": validation["fresh"],
+        "evaluation_cache_hit": validation["cache_hit"],
+    }
+    if validation.get("invalid_reason"):
+        eval_meta["evaluation_invalid_reason"] = validation["invalid_reason"]
+
+    eval_log = (r.stdout or "")[-4000:] + (r.stderr or "")[-2000:]
+    shutil.rmtree(work_dir, ignore_errors=True)
+    return resolved, infra, report, eval_log, latency, eval_meta
 
 
 def run():
@@ -428,19 +749,26 @@ def run():
             task_start = time.monotonic()
             task_iso = datetime.datetime.utcnow().isoformat() + "Z"
             if arm == "baseline":
-                patch, usage, transcript, pi_lat, err, timed_out, provider_failure = pi_patch(ps, repo, iid)
-                write_transcript(OUT_ROOT / arm / f"transcript_{iid}.txt", patch, transcript, err, provider_failure)
+                patch, usage, transcript, pi_lat, err, timed_out, provider_failure, raw_patch = pi_patch(ps, repo, iid)
+                write_transcript(OUT_ROOT / arm / f"transcript_{iid}.txt", patch, transcript, err, provider_failure, raw_patch=raw_patch)
                 ver_start = time.monotonic()
                 if provider_failure:
                     resolved, infra, report, eval_log, ver_lat = False, False, None, "", 0.0
+                    eval_meta = {
+                        "evaluation_run_id": None,
+                        "evaluation_fresh": False,
+                        "evaluation_cache_hit": False,
+                    }
                 else:
-                    resolved, infra, report, eval_log, ver_lat = full_eval(iid, patch)
+                    resolved, infra, report, eval_log, ver_lat, eval_meta = full_eval(iid, patch, arm, attempt=1)
                 if report:
                     pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.eval.json").write_text(json.dumps(report, indent=2))
                 pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.log").write_text(eval_log)
                 total_lat = time.monotonic() - task_start
                 if provider_failure:
                     fc = provider_failure["failure_class"]
+                elif eval_fc := evaluation_failure_class(eval_meta):
+                    fc = eval_fc
                 elif not patch.strip():
                     fc = "EMPTY_OUTPUT"
                 elif not resolved:
@@ -458,6 +786,8 @@ def run():
                     "finished_at": datetime.datetime.utcnow().isoformat() + "Z",
                     "patch_empty": not bool(patch.strip()), "token_usage": usage,
                     **result_provider_fields(provider_failure),
+                    **evaluation_result_fields(eval_meta),
+                    **patch_normalization_fields(raw_patch),
                 }
                 results[arm].append(rec)
                 (OUT_ROOT / arm / "result.json").write_text(json.dumps(results[arm], indent=2))
@@ -466,6 +796,7 @@ def run():
                 attempts = 0
                 total_usage = dict(ZERO_USAGE)
                 patches = []
+                raw_patches = []
                 transcripts = []
                 resolved = False
                 infra = False
@@ -474,10 +805,16 @@ def run():
                 pi_total = 0
                 provider_failure = None
                 failure_class = "NONE"
+                eval_meta = {
+                    "evaluation_run_id": None,
+                    "evaluation_fresh": False,
+                    "evaluation_cache_hit": False,
+                }
                 for attempt in range(1, 4):
                     attempts = attempt
-                    patch, usage, transcript, pi_lat, err, timed_out, provider_failure = pi_patch(ps, repo, iid, feedback=feedback)
+                    patch, usage, transcript, pi_lat, err, timed_out, provider_failure, raw_patch = pi_patch(ps, repo, iid, feedback=feedback)
                     patches.append(patch)
+                    raw_patches.append(raw_patch)
                     transcripts.append(transcript)
                     pi_total += pi_lat
                     if provider_failure:
@@ -485,11 +822,14 @@ def run():
                         break
                     for k in total_usage:
                         total_usage[k] += usage.get(k, 0)
-                    resolved, infra, report, eval_log, ver_lat = full_eval(iid, patch)
+                    resolved, infra, report, eval_log, ver_lat, eval_meta = full_eval(iid, patch, arm, attempt=attempt)
                     ver_total += ver_lat
                     if report:
                         pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.eval.json").write_text(json.dumps(report, indent=2))
                     pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.log").write_text(eval_log)
+                    if eval_fc := evaluation_failure_class(eval_meta):
+                        failure_class = eval_fc
+                        break
                     if resolved or infra:
                         failure_class = "NONE" if resolved else "INFRA_FAILURE"
                         break
@@ -504,7 +844,7 @@ def run():
                 pathlib.Path(OUT_ROOT / arm / f"transcript_{iid}.txt").write_text(
                     "\n\n===== ATTEMPT =====\n\n".join(
                         f"ATTEMPT {i + 1} PATCH:\n{p[:8000]}\nTRANSCRIPT:\n{t[:4000]}"
-                        for i, p, t in zip(range(len(patches)), patches, transcripts)
+                        for i, p, t in zip(range(len(raw_patches)), raw_patches, transcripts)
                     )
                 )
                 if provider_failure:
@@ -525,6 +865,12 @@ def run():
                     "patch_empty": not bool(patches[-1].strip()) if patches else True,
                     "token_usage": total_usage,
                     **result_provider_fields(provider_failure),
+                    **(evaluation_result_fields(eval_meta) if not provider_failure else {
+                        "evaluation_run_id": None,
+                        "evaluation_fresh": False,
+                        "evaluation_cache_hit": False,
+                    }),
+                    **(patch_normalization_fields(raw_patches[-1]) if raw_patches else {"patch_normalized": False}),
                 }
                 results[arm].append(rec)
                 (OUT_ROOT / arm / "result.json").write_text(json.dumps(results[arm], indent=2))
@@ -533,6 +879,7 @@ def run():
                 attempts = 0
                 total_usage = dict(ZERO_USAGE)
                 patches = []
+                raw_patches = []
                 transcripts = []
                 resolved = False
                 infra = False
@@ -544,22 +891,28 @@ def run():
                 assertion = ""
                 traceback = ""
                 provider_failure = None
+                eval_meta = {
+                    "evaluation_run_id": None,
+                    "evaluation_fresh": False,
+                    "evaluation_cache_hit": False,
+                }
                 fail_to_pass = id2inst[iid]["FAIL_TO_PASS"]
                 if isinstance(fail_to_pass, str):
                     fail_to_pass = json.loads(fail_to_pass)
                 for attempt in range(1, 4):
                     attempts = attempt
                     if attempt == 1:
-                        patch, usage, transcript, pi_lat, err, timed_out, provider_failure = pi_patch(ps, repo, iid, feedback=None)
+                        patch, usage, transcript, pi_lat, err, timed_out, provider_failure, raw_patch = pi_patch(ps, repo, iid, feedback=None)
                     else:
                         fb = (
                             f"Failing test: {failing_test}\nAssertion: {assertion}\n"
                             f"Traceback:\n{traceback}\nPrevious diff failed. Fix targeted file."
                         )
-                        patch, usage, transcript, pi_lat, err, timed_out, provider_failure = pi_patch(
+                        patch, usage, transcript, pi_lat, err, timed_out, provider_failure, raw_patch = pi_patch(
                             ps, repo, iid, feedback=fb, targeted=True, failing_test=failing_test,
                         )
                     patches.append(patch)
+                    raw_patches.append(raw_patch)
                     transcripts.append(transcript)
                     pi_total += pi_lat
                     if provider_failure:
@@ -578,14 +931,18 @@ def run():
                         traceback = "patch empty due to timeout"
                         continue
                     start_check = time.monotonic()
-                    chk = check_patch(patch)
+                    chk, apply_log = apply_check_in_testbed(iid, patch)
                     ver_total += time.monotonic() - start_check
+                    pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.apply_check.log").write_text(apply_log or "")
                     if chk:
                         failure_class = chk
                         ver_layer = "apply_check"
                         failing_test = chk
-                        assertion = "patch does not apply"
-                        traceback = "git apply --check failed"
+                        assertion = "patch does not apply in testbed"
+                        traceback = (apply_log or "git apply --check failed")[-2000:]
+                        if chk == "INFRA_FAILURE":
+                            infra = True
+                            break
                         if attempt == 3:
                             break
                         continue
@@ -607,11 +964,16 @@ def run():
                             break
                         continue
                     ver_layer = "regression"
-                    resolved, infra, report, eval_log, ver_lat = full_eval(iid, patch)
+                    resolved, infra, report, eval_log, ver_lat, eval_meta = full_eval(iid, patch, arm, attempt=attempt)
                     ver_total += ver_lat
                     if report:
                         pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.eval.json").write_text(json.dumps(report, indent=2))
                     pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.log").write_text(eval_log)
+                    if eval_fc := evaluation_failure_class(eval_meta):
+                        failure_class = eval_fc
+                        ver_layer = "regression"
+                        resolved = False
+                        break
                     if resolved:
                         failure_class = "NONE"
                         ver_layer = "regression"
@@ -627,7 +989,7 @@ def run():
                 pathlib.Path(OUT_ROOT / arm / f"transcript_{iid}.txt").write_text(
                     "\n\n===== ATTEMPT =====\n\n".join(
                         f"ATTEMPT {i + 1} PATCH:\n{p[:8000]}\nTRANSCRIPT:\n{t[:4000]}"
-                        for i, p, t in zip(range(len(patches)), patches, transcripts)
+                        for i, p, t in zip(range(len(raw_patches)), raw_patches, transcripts)
                     )
                 )
                 rec = {
@@ -642,18 +1004,20 @@ def run():
                     "patch_empty": not bool(patches[-1].strip()) if patches else True,
                     "token_usage": total_usage,
                     **result_provider_fields(provider_failure),
+                    **evaluation_result_fields(eval_meta),
+                    **(patch_normalization_fields(raw_patches[-1]) if raw_patches else {"patch_normalized": False}),
                 }
                 results[arm].append(rec)
                 (OUT_ROOT / arm / "result.json").write_text(json.dumps(results[arm], indent=2))
                 print(f"  layered resolved={resolved} attempts={attempts} recovered={recovered} fc={failure_class} tokens={total_usage['totalTokens']} lat={total_lat:.1f}s")
     agg = {"manifest_hash": MANIFEST_HASH, "baseline": results["baseline"], "current": results["current"], "layered": results["layered"]}
-    pathlib.Path("research/phase2d/raw/results.json").write_text(json.dumps(agg, indent=2))
+    (OUT_ROOT / "results.json").write_text(json.dumps(agg, indent=2))
     print("\nDone")
 
 
 def smoke_pi():
     """Minimal live pi invocation to verify provider connectivity."""
-    patch, usage, transcript, latency, err, timed_out, provider_failure = pi_patch(
+    patch, usage, transcript, latency, err, timed_out, provider_failure, _raw_patch = pi_patch(
         "Return a one-line unified diff for README.md adding a comment.",
         "test/repo",
         "smoke-test",
@@ -692,4 +1056,6 @@ if __name__ == "__main__":
         raise SystemExit(smoke_pi())
     if len(sys.argv) > 1 and sys.argv[1] == "smoke-patch":
         raise SystemExit(smoke_patch_extraction())
+    if len(sys.argv) > 1 and sys.argv[1] == "final-one-task":
+        configure_final_one_task_run()
     run()

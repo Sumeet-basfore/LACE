@@ -1,0 +1,110 @@
+{
+  "manifest_hash": "3ef6f198fd79d1db",
+  "baseline": [
+    {
+      "instance_id": "pallets__flask-4992",
+      "repo": "pallets/flask",
+      "base_commit": "4c288bc97ea371817199908d0d9b12de9dae327e",
+      "condition": "baseline",
+      "model": "muse-spark-1.2-contributor-free",
+      "attempts": 1,
+      "retries": 0,
+      "resolved": true,
+      "infra_failure": false,
+      "failure_class": "NONE",
+      "verification_layer": "full",
+      "totalTokens": 182754,
+      "cacheRead": 178673,
+      "latency_seconds": 87.13,
+      "pi_latency": 59.36,
+      "verification_latency": 27.76,
+      "started_at": "2026-09-03T12:31:11.096516Z",
+      "finished_at": "2026-09-03T12:32:38.222938Z",
+      "patch_empty": false,
+      "token_usage": {
+        "input": 3184,
+        "output": 897,
+        "totalTokens": 182754,
+        "cacheRead": 178673,
+        "cacheWrite": 0,
+        "reasoning": 439,
+        "cost": 0
+      },
+      "evaluation_run_id": "phase2d-3ef6f198fd79d1db-baseline-a1-pallets__flask-4992-20260903T123210465114Z-523587cd7e9a",
+      "evaluation_fresh": true,
+      "evaluation_cache_hit": false
+    }
+  ],
+  "current": [
+    {
+      "instance_id": "pallets__flask-4992",
+      "repo": "pallets/flask",
+      "base_commit": "4c288bc97ea371817199908d0d9b12de9dae327e",
+      "condition": "current",
+      "model": "muse-spark-1.2-contributor-free",
+      "attempts": 1,
+      "retries": 0,
+      "resolved": true,
+      "infra_failure": false,
+      "recovered": false,
+      "failure_class": "NONE",
+      "verification_layer": "full",
+      "totalTokens": 184113,
+      "cacheRead": 182065,
+      "latency_seconds": 126.1,
+      "pi_latency": 98.47,
+      "verification_latency": 27.63,
+      "started_at": "2026-09-03T12:32:38.223135Z",
+      "finished_at": "2026-09-03T12:34:44.328115Z",
+      "patch_empty": false,
+      "token_usage": {
+        "input": 1281,
+        "output": 767,
+        "totalTokens": 184113,
+        "cacheRead": 182065,
+        "cacheWrite": 0,
+        "reasoning": 309,
+        "cost": 0
+      },
+      "evaluation_run_id": "phase2d-3ef6f198fd79d1db-current-a1-pallets__flask-4992-20260903T123416696799Z-3576ef7151e6",
+      "evaluation_fresh": true,
+      "evaluation_cache_hit": false
+    }
+  ],
+  "layered": [
+    {
+      "instance_id": "pallets__flask-4992",
+      "repo": "pallets/flask",
+      "base_commit": "4c288bc97ea371817199908d0d9b12de9dae327e",
+      "condition": "layered",
+      "model": "muse-spark-1.2-contributor-free",
+      "attempts": 3,
+      "retries": 2,
+      "resolved": false,
+      "infra_failure": false,
+      "recovered": false,
+      "failure_class": "MODEL_OUTPUT_INVALID",
+      "verification_layer": "apply_check",
+      "totalTokens": 577785,
+      "cacheRead": 570643,
+      "latency_seconds": 256.07,
+      "pi_latency": 245.64,
+      "verification_latency": 10.39,
+      "started_at": "2026-09-03T12:34:44.328394Z",
+      "finished_at": "2026-09-03T12:39:00.398923Z",
+      "patch_empty": false,
+      "token_usage": {
+        "input": 4281,
+        "output": 2861,
+        "totalTokens": 577785,
+        "cacheRead": 570643,
+        "cacheWrite": 0,
+        "reasoning": 1453,
+        "cost": 0
+      },
+      "evaluation_run_id": null,
+      "evaluation_fresh": false,
+      "evaluation_cache_hit": false
+    }
+  ]
+}

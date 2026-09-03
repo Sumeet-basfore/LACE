@@ -1,0 +1,101 @@
+{
+  "manifest_hash": "3ef6f198fd79d1db",
+  "baseline": [
+    {
+      "instance_id": "pallets__flask-4992",
+      "repo": "pallets/flask",
+      "base_commit": "4c288bc97ea371817199908d0d9b12de9dae327e",
+      "condition": "baseline",
+      "model": "muse-spark-1.2-contributor-free",
+      "attempts": 1,
+      "retries": 0,
+      "resolved": true,
+      "infra_failure": false,
+      "failure_class": "NONE",
+      "verification_layer": "full",
+      "totalTokens": 183098,
+      "cacheRead": 181937,
+      "latency_seconds": 52.85,
+      "pi_latency": 45.79,
+      "verification_latency": 7.05,
+      "started_at": "2026-09-03T12:03:14.921909Z",
+      "finished_at": "2026-09-03T12:04:07.773205Z",
+      "patch_empty": false,
+      "token_usage": {
+        "input": 548,
+        "output": 613,
+        "totalTokens": 183098,
+        "cacheRead": 181937,
+        "cacheWrite": 0,
+        "reasoning": 182,
+        "cost": 0
+      }
+    }
+  ],
+  "current": [
+    {
+      "instance_id": "pallets__flask-4992",
+      "repo": "pallets/flask",
+      "base_commit": "4c288bc97ea371817199908d0d9b12de9dae327e",
+      "condition": "current",
+      "model": "muse-spark-1.2-contributor-free",
+      "attempts": 1,
+      "retries": 0,
+      "resolved": true,
+      "infra_failure": false,
+      "recovered": false,
+      "failure_class": "NONE",
+      "verification_layer": "full",
+      "totalTokens": 185803,
+      "cacheRead": 183921,
+      "latency_seconds": 45.92,
+      "pi_latency": 38.93,
+      "verification_latency": 6.99,
+      "started_at": "2026-09-03T12:04:07.773379Z",
+      "finished_at": "2026-09-03T12:04:53.695616Z",
+      "patch_empty": false,
+      "token_usage": {
+        "input": 1042,
+        "output": 840,
+        "totalTokens": 185803,
+        "cacheRead": 183921,
+        "cacheWrite": 0,
+        "reasoning": 381,
+        "cost": 0
+      }
+    }
+  ],
+  "layered": [
+    {
+      "instance_id": "pallets__flask-4992",
+      "repo": "pallets/flask",
+      "base_commit": "4c288bc97ea371817199908d0d9b12de9dae327e",
+      "condition": "layered",
+      "model": "muse-spark-1.2-contributor-free",
+      "attempts": 3,
+      "retries": 2,
+      "resolved": false,
+      "infra_failure": false,
+      "recovered": false,
+      "failure_class": "MODEL_OUTPUT_INVALID",
+      "verification_layer": "apply_check",
+      "totalTokens": 595564,
+      "cacheRead": 588691,
+      "latency_seconds": 451.81,
+      "pi_latency": 441.41,
+      "verification_latency": 10.35,
+      "started_at": "2026-09-03T12:04:53.695753Z",
+      "finished_at": "2026-09-03T12:12:25.508917Z",
+      "patch_empty": false,
+      "token_usage": {
+        "input": 4633,
+        "output": 2240,
+        "totalTokens": 595564,
+        "cacheRead": 588691,
+        "cacheWrite": 0,
+        "reasoning": 836,
+        "cost": 0
+      }
+    }
+  ]
+}

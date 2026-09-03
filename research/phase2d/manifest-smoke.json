@@ -1,0 +1,44 @@
+{
+  "dataset": "SWE-bench/SWE-bench_Lite",
+  "dataset_alias": "lite",
+  "dataset_version": "SWE-bench/SWE-bench_Lite test via princeton-nlp/SWE-bench_Lite (HuggingFace datasets)",
+  "split": "test",
+  "n": 1,
+  "purpose": "temporary one-task Phase 2D harness validation smoke manifest — not the canonical Phase 2D experiment",
+  "selection": "deterministic uncontaminated pick: pallets__flask-4992 — in powered-30 manifest but never executed in Phase 2B partial, not in Phase 2C paired analysis set, not in contaminated Phase 2D manifest; repo not represented in contaminated Phase 2D run",
+  "excluded_from": {
+    "phase2b_partial_executed": [
+      "astropy__astropy-12907",
+      "astropy__astropy-14182",
+      "django__django-10914",
+      "django__django-10924",
+      "django__django-11001",
+      "matplotlib__matplotlib-18869",
+      "matplotlib__matplotlib-22711",
+      "matplotlib__matplotlib-22835",
+      "mwaskom__seaborn-2848",
+      "mwaskom__seaborn-3010",
+      "pallets__flask-4045"
+    ],
+    "phase2c_analysis": "same executed subset as Phase 2B partial (research/experiment/scale/partial-run.md)",
+    "phase2d_contaminated": [
+      "psf__requests-1963",
+      "pydata__xarray-3364",
+      "pylint-dev__pylint-5859",
+      "pytest-dev__pytest-11143",
+      "scikit-learn__scikit-learn-10297",
+      "sphinx-doc__sphinx-10325",
+      "sympy__sympy-11400"
+    ]
+  },
+  "ids": ["pallets__flask-4992"],
+  "tasks": [
+    {
+      "instance_id": "pallets__flask-4992",
+      "repo": "pallets/flask",
+      "base_commit": "4c288bc97ea371817199908d0d9b12de9dae327e"
+    }
+  ],
+  "frozen_at": "2026-09-03T11:08:00Z",
+  "frozen_by": "phase2d one-task smoke validation prep (harness only; do not merge into canonical manifest)"
+}

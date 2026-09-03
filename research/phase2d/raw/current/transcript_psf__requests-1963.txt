@@ -1,0 +1,28 @@
+ATTEMPT 1 PATCH:
+diff --git a/requests/sessions.py b/requests/sessions.py
+index 425db22c..86ce93b5 100644
+--- a/requests/sessions.py
++++ b/requests/sessions.py
+@@ -179,6 +179,7 @@ class SessionRedirectMixin(object):
+             )
+ 
+             extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
++            req = prepared_request
+ 
+             i += 1
+             yield resp
+TRANSCRIPT:
+```diff
+diff --git a/requests/sessions.py b/requests/sessions.py
+index 425db22c..86ce93b5 100644
+--- a/requests/sessions.py
++++ b/requests/sessions.py
+@@ -179,6 +179,7 @@ class SessionRedirectMixin(object):
+             )
+ 
+             extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
++            req = prepared_request
+ 
+             i += 1
+             yield resp
+```

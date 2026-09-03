@@ -1,0 +1,419 @@
+# LACE — Cursor Agent Rules
+
+You are working on LACE, a research-driven verification-first coding-agent
+harness.
+
+Your job is to make the smallest correct change needed for the current task.
+
+==================================================
+1. PROJECT PRINCIPLES
+==================================================
+
+LACE is being developed through:
+
+research → hypothesis → experiment → evidence → decision → implementation
+
+Do not skip directly from an interesting idea to implementation.
+
+Treat these as different things:
+
+FACT
+EVIDENCE
+INFERENCE
+HYPOTHESIS
+DECISION
+
+Never present a hypothesis as a measured result.
+
+The benchmark is a validation instrument.
+The benchmark itself is NOT the product.
+
+Current product hypothesis:
+
+LACE explores whether failure-aware verification can convert verification
+evidence into minimal, actionable corrective context and enable bounded
+recovery at acceptable cost and latency.
+
+Current direction:
+- verification-first
+- failure-aware recovery
+- thin host-native extension
+- MCP / coding-agent integration
+- optional Herdr integration
+
+Currently NOT justified:
+- standalone coding runtime
+- multi-agent orchestration as a core feature
+- vector database / retrieval platform
+- large AST editing platform
+- local-first-only product
+- UI-heavy product work before technical validation
+
+==================================================
+2. READ MINIMAL CONTEXT
+==================================================
+
+Do NOT read the entire repository by default.
+
+Start with:
+1. the file(s) directly relevant to the task
+2. context/brain.md
+3. context/decisions.md when project-level decisions matter
+4. AGENTS.md when working on project behavior
+5. relevant research docs only when needed
+
+Prefer existing artifacts over rediscovering history.
+
+Do not repeatedly inspect the same files unless they changed.
+
+==================================================
+3. TOKEN DISCIPLINE
+==================================================
+
+Optimize for useful work per token.
+
+Rules:
+- Inspect narrowly.
+- Avoid repository-wide searches unless necessary.
+- Do not perform speculative research unless explicitly requested.
+- Do not repeat project history in your analysis.
+- Do not generate large explanations when a concise result is enough.
+- Do not spawn sub-agents unless explicitly requested.
+- Do not run expensive commands unless necessary.
+- Do not run the same failing command repeatedly without learning from it.
+- Stop immediately after acceptance criteria are satisfied.
+
+Before any expensive command, ask:
+"Is this required to verify the requested change?"
+
+If not, don't run it.
+
+==================================================
+4. SCOPE CONTROL
+==================================================
+
+Only modify files required for the current task.
+
+Do NOT:
+- refactor unrelated code
+- rename unrelated files
+- "clean up" unrelated code
+- introduce new architecture without explicit approval
+- add dependencies casually
+- rewrite documentation unnecessarily
+- change experiment methodology opportunistically
+
+When you discover a potentially useful unrelated improvement:
+document it briefly in your final summary instead of implementing it.
+
+==================================================
+5. EXPERIMENT SAFETY
+==================================================
+
+Experiments are controlled research.
+
+NEVER run SWE-bench or other expensive benchmark experiments unless the user
+explicitly asks.
+
+NEVER:
+- change the frozen model without approval
+- change the frozen provider without approval
+- change the task manifest without approval
+- change the experimental protocol without approval
+- mix contaminated and clean experiment artifacts
+- claim statistical significance from tiny exploratory samples
+- turn exploratory results into product claims
+
+Current experimental model:
+muse-spark-1.2-contributor-free
+
+Current experimental direction:
+Layered verification:
+  structural validation
+  → targeted correctness verification
+  → targeted recovery
+  → regression verification
+  → optional reviewer
+
+Do not modify this strategy during unrelated tasks.
+
+==================================================
+6. FAILURE TAXONOMY
+==================================================
+
+Do not collapse all failures into "agent failed".
+
+Keep these distinct:
+
+PATCH_INVALID
+TEST_FAILURE
+REGRESSION
+TIMEOUT
+EMPTY_OUTPUT
+WRONG_FILE
+PROVIDER_RATE_LIMIT
+PROVIDER_ERROR
+AUTH_ERROR
+NETWORK_ERROR
+INFRA_FAILURE
+OTHER
+
+Important:
+
+provider failure ≠ model failure
+model failure ≠ verification failure
+verification failure ≠ infrastructure failure
+
+Provider-rate-limit failures must never be blindly retried.
+
+==================================================
+7. LACE RECOVERY MODEL
+==================================================
+
+Keep the conceptual model:
+
+Agent attempt
+  ↓
+Evidence collection
+  ↓
+Failure classification
+  ↓
+Minimal useful context
+  ↓
+Recovery action
+  ↓
+Verification
+  ↓
+Regression proof
+  ↓
+Final outcome
+
+Core principle:
+
+DO NOT spend expensive verification or large context until cheaper evidence
+shows that it is necessary.
+
+Recovery should be failure-specific.
+
+Examples:
+
+PATCH_INVALID
+→ provide structural feedback
+→ retry minimally
+
+TEST_FAILURE
+→ provide targeted failure evidence
+→ targeted retry
+
+TIMEOUT
+→ reduce/reshape execution context
+→ avoid blind repetition
+
+PROVIDER_RATE_LIMIT
+→ stop; do not blindly retry
+
+INFRA_FAILURE
+→ repair/recover infrastructure
+→ do not blame the model
+
+==================================================
+8. IMPLEMENTATION STYLE
+==================================================
+
+Prefer:
+- small functions
+- explicit control flow
+- simple data structures
+- deterministic behavior
+- structured JSON/JSONL artifacts
+- focused tests
+- existing project utilities
+
+Avoid:
+- unnecessary frameworks
+- abstraction for abstraction's sake
+- premature plugin architecture
+- speculative interfaces
+- hidden global state
+- clever one-liners when explicit code is clearer
+
+When changing behavior:
+- add or update a focused test
+- preserve backward compatibility unless explicitly instructed otherwise
+
+==================================================
+9. BENCHMARK / COST SAFETY
+==================================================
+
+If a command may:
+- invoke a model
+- consume provider quota
+- run Docker for long periods
+- run SWE-bench
+- make repeated retries
+
+assume it is expensive.
+
+Never use paid or limited model quota for:
+- formatting
+- trivial file inspection
+- repeated explanations
+- broad repository discovery
+- speculative experiments
+- redundant tests
+
+For model-based experiments:
+- use the designated experimental model
+- preserve exact conditions
+- record artifacts
+- do not manually "improve" individual tasks after seeing results
+
+==================================================
+10. PROVIDER / MODEL INVOCATION
+==================================================
+
+When invoking model tooling:
+
+Always preserve:
+- provider
+- model
+- timeout
+- structured output handling
+
+Distinguish:
+
+successful invocation with empty output
+from
+provider invocation failure
+
+Never classify a provider error as EMPTY_OUTPUT.
+
+Always preserve useful provider error information in logs.
+
+Do not retry HTTP 429 / FreeUsageLimitError blindly.
+
+==================================================
+11. FILES / ARTIFACTS
+==================================================
+
+Research artifacts are permanent evidence.
+
+Preserve:
+- manifests
+- protocols
+- reports
+- analysis
+- experiment metadata
+- meaningful logs/transcripts
+
+Do not delete historical evidence simply because a run was invalid.
+
+Invalid experiments should be clearly labeled/archived.
+
+Avoid committing:
+- secrets
+- API keys
+- virtual environments
+- caches
+- Docker caches
+- temporary files
+- machine-specific artifacts
+- very large generated files unless explicitly required
+
+==================================================
+12. GIT DISCIPLINE
+==================================================
+
+Before making substantial changes:
+- inspect git status
+- avoid overwriting unrelated work
+
+After a coherent change:
+- verify the diff
+- ensure no unrelated files changed
+
+Do not create commits unless explicitly requested by the user.
+
+Never reset, checkout, clean, or delete user work without explicit approval.
+
+==================================================
+13. TESTING
+==================================================
+
+Use the narrowest relevant validation.
+
+Preferred order:
+
+1. syntax/type/static check
+2. focused unit test
+3. focused integration test
+4. broader test only when justified
+
+Do not run the full repository test suite for a small isolated change unless
+the change genuinely requires it.
+
+For research harness changes:
+- test error classification
+- test retry behavior
+- test artifact generation
+- test metric accounting
+
+==================================================
+14. DOCUMENTATION
+==================================================
+
+When a decision changes, update the appropriate context document.
+
+Use:
+context/brain.md
+context/decisions.md
+context/terminology.md
+context/experiment-rules.md
+
+For conceptual technical ideas:
+docs/
+
+For experiment evidence:
+research/
+
+Do not rewrite documents simply to make them longer.
+
+Prefer concise, durable documentation.
+
+==================================================
+15. STOP CONDITIONS
+==================================================
+
+Stop when:
+- requested files are changed
+- acceptance criteria are met
+- focused validation passes
+
+Do NOT continue with:
+- unrelated cleanup
+- extra research
+- optional refactors
+- speculative improvements
+- benchmarks
+- architecture expansion
+
+Final response should contain only:
+1. what changed
+2. validation performed
+3. any important caveat
+4. what remains open, if anything
+
+Then STOP.
+
+==================================================
+16. CURRENT HARD RULE
+==================================================
+
+DO NOT RUN PHASE 2D OR SWE-BENCH unless explicitly instructed.
+
+The current Phase 2D work requires:
+- provider quota availability
+- clean experiment artifacts
+- one-task × three-arm validation first
+
+Until explicitly instructed otherwise, treat benchmark execution as BLOCKED.

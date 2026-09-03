@@ -1,0 +1,134 @@
+{
+  "meta": {
+    "instance_id": "pallets__flask-4992",
+    "image": "swebench/sweb.eval.x86_64.pallets_1776_flask-4992:latest",
+    "original_patch_sha256": "3a3940fc557caa6a8cc50c2b76b22cab63100b3bb11939d2d59a8ec6dc6e4d2d",
+    "original_patch_bytes": 1678,
+    "original_has_trailing_newline": false,
+    "newline_patch_sha256": "fbfddd47be0bdc715df48c4894a778d52d3e0dadee5dd3117200a01cae3c9b77",
+    "gold_patch_sha256": "db912cc1331807c9b0715766eb45a5fac8c4036a99dd54c9ce998b675d0d8697",
+    "gold_tree_hash": "5e48be3323e577fa711bdd1b1b27bdf7730534be"
+  },
+  "results": [
+    {
+      "case": "original__git_apply_check",
+      "command": "git apply --check /tmp/patch",
+      "patch_file": "baseline_original.patch",
+      "exit_code": 128,
+      "applied": false,
+      "tree_hash": "d4fc310fe3e46c9828e7337e91725686b5b94abf",
+      "stdout": "EXIT:128\nAPPLIED:0\nTREE_HASH:d4fc310fe3e46c9828e7337e91725686b5b94abf\nGIT_DIFF_BEGIN\n\nGIT_DIFF_END\n",
+      "stderr": "error: corrupt patch at line 42\n",
+      "git_diff_head": "\n",
+      "matches_gold_tree": false
+    },
+    {
+      "case": "original__git_apply_verbose",
+      "command": "git apply --verbose /tmp/patch",
+      "patch_file": "baseline_original.patch",
+      "exit_code": 128,
+      "applied": false,
+      "tree_hash": "d4fc310fe3e46c9828e7337e91725686b5b94abf",
+      "stdout": "EXIT:128\nAPPLIED:0\nTREE_HASH:d4fc310fe3e46c9828e7337e91725686b5b94abf\nGIT_DIFF_BEGIN\n\nGIT_DIFF_END\n",
+      "stderr": "error: corrupt patch at line 42\n",
+      "git_diff_head": "\n",
+      "matches_gold_tree": false
+    },
+    {
+      "case": "original__git_apply_3way",
+      "command": "git apply --verbose --3way /tmp/patch",
+      "patch_file": "baseline_original.patch",
+      "exit_code": 128,
+      "applied": false,
+      "tree_hash": "d4fc310fe3e46c9828e7337e91725686b5b94abf",
+      "stdout": "EXIT:128\nAPPLIED:0\nTREE_HASH:d4fc310fe3e46c9828e7337e91725686b5b94abf\nGIT_DIFF_BEGIN\n\nGIT_DIFF_END\n",
+      "stderr": "error: corrupt patch at line 42\n",
+      "git_diff_head": "\n",
+      "matches_gold_tree": false
+    },
+    {
+      "case": "original__git_apply_reject",
+      "command": "git apply --verbose --reject /tmp/patch",
+      "patch_file": "baseline_original.patch",
+      "exit_code": 128,
+      "applied": false,
+      "tree_hash": "d4fc310fe3e46c9828e7337e91725686b5b94abf",
+      "stdout": "EXIT:128\nAPPLIED:0\nTREE_HASH:d4fc310fe3e46c9828e7337e91725686b5b94abf\nGIT_DIFF_BEGIN\n\nGIT_DIFF_END\n",
+      "stderr": "error: corrupt patch at line 42\n",
+      "git_diff_head": "\n",
+      "matches_gold_tree": false
+    },
+    {
+      "case": "original__patch_fuzz5",
+      "command": "patch --batch --forward --fuzz=5 -p1 -i /tmp/patch",
+      "patch_file": "baseline_original.patch",
+      "exit_code": 0,
+      "applied": true,
+      "tree_hash": "5e48be3323e577fa711bdd1b1b27bdf7730534be",
+      "stdout": "patching file src/flask/config.py\npatch unexpectedly ends in middle of line\nHunk #3 succeeded at 255 with fuzz 1.\nEXIT:0\nAPPLIED:1\nTREE_HASH:5e48be3323e577fa711bdd1b1b27bdf7730534be\nGIT_DIFF_BEGIN\ndiff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..5e48be33 100755\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -234,6 +234,7 @@ class Config(dict):\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n         silent: bool = False,\n+        text: bool = True,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n         using the ``load`` parameter. The loaded data is passed to the\n@@ -244,8 +245,8 @@ class Config(dict):\n             import json\n             app.config.from_file(\"config.json\", load=json.load)\n \n-            import toml\n-            app.config.from_file(\"config.toml\", load=toml.load)\n+            import tomllib\n+            app.config.from_file(\"config.toml\", load=tomllib.load, text=False)\n \n         :param filename: The path to the data file. This can be an\n             absolute path or relative to the config root path.\n@@ -254,14 +255,18 @@ class Config(dict):\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n         :param silent: Ignore the file if it doesn't exist.\n+        :param text: Open the file in text or binary mode.\n         :return: ``True`` if the file was loaded successfully.\n \n+        .. versionchanged:: 2.3\n+            The ``text`` parameter was added.\n+\n         .. versionadded:: 2.0\n         \"\"\"\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            with open(filename, \"r\" if text else \"rb\") as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\nGIT_DIFF_END\n",
+      "stderr": "",
+      "git_diff_head": "diff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..5e48be33 100755\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -234,6 +234,7 @@ class Config(dict):\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n         silent: bool = False,\n+        text: bool = True,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n         using the ``load`` parameter. The loaded data is passed to the\n@@ -244,8 +245,8 @@ class Config(dict):\n             import json\n             app.config.from_file(\"config.json\", load=json.load)\n \n-            import toml\n-            app.config.from_file(\"config.toml\", load=toml.load)\n+            import tomllib\n+            app.config.from_file(\"config.toml\", load=tomllib.load, text=False)\n \n         :param filename: The path to the data file. This can be an\n             absolute path or relative to the config root path.\n@@ -254,14 +255,18 @@ class Config(dict):\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n         :param silent: Ignore the file if it doesn't exist.\n+        :param text: Open the file in text or binary mode.\n         :return: ``True`` if the file was loaded successfully.\n \n+        .. versionchanged:: 2.3\n+            The ``text`` parameter was added.\n+\n         .. versionadded:: 2.0\n         \"\"\"\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            with open(filename, \"r\" if text else \"rb\") as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\n",
+      "matches_gold_tree": true
+    },
+    {
+      "case": "plus_newline__git_apply_check",
+      "command": "git apply --check /tmp/patch",
+      "patch_file": "baseline_plus_newline.patch",
+      "exit_code": 0,
+      "applied": true,
+      "tree_hash": "d4fc310fe3e46c9828e7337e91725686b5b94abf",
+      "stdout": "EXIT:0\nAPPLIED:1\nTREE_HASH:d4fc310fe3e46c9828e7337e91725686b5b94abf\nGIT_DIFF_BEGIN\n\nGIT_DIFF_END\n",
+      "stderr": "",
+      "git_diff_head": "\n",
+      "matches_gold_tree": false
+    },
+    {
+      "case": "plus_newline__git_apply_verbose",
+      "command": "git apply --verbose /tmp/patch",
+      "patch_file": "baseline_plus_newline.patch",
+      "exit_code": 0,
+      "applied": true,
+      "tree_hash": "5e48be3323e577fa711bdd1b1b27bdf7730534be",
+      "stdout": "EXIT:0\nAPPLIED:1\nTREE_HASH:5e48be3323e577fa711bdd1b1b27bdf7730534be\nGIT_DIFF_BEGIN\ndiff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..5e48be33 100755\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -234,6 +234,7 @@ class Config(dict):\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n         silent: bool = False,\n+        text: bool = True,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n         using the ``load`` parameter. The loaded data is passed to the\n@@ -244,8 +245,8 @@ class Config(dict):\n             import json\n             app.config.from_file(\"config.json\", load=json.load)\n \n-            import toml\n-            app.config.from_file(\"config.toml\", load=toml.load)\n+            import tomllib\n+            app.config.from_file(\"config.toml\", load=tomllib.load, text=False)\n \n         :param filename: The path to the data file. This can be an\n             absolute path or relative to the config root path.\n@@ -254,14 +255,18 @@ class Config(dict):\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n         :param silent: Ignore the file if it doesn't exist.\n+        :param text: Open the file in text or binary mode.\n         :return: ``True`` if the file was loaded successfully.\n \n+        .. versionchanged:: 2.3\n+            The ``text`` parameter was added.\n+\n         .. versionadded:: 2.0\n         \"\"\"\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            with open(filename, \"r\" if text else \"rb\") as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\nGIT_DIFF_END\n",
+      "stderr": "Checking patch src/flask/config.py...\nApplied patch src/flask/config.py cleanly.\n",
+      "git_diff_head": "diff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..5e48be33 100755\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -234,6 +234,7 @@ class Config(dict):\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n         silent: bool = False,\n+        text: bool = True,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n         using the ``load`` parameter. The loaded data is passed to the\n@@ -244,8 +245,8 @@ class Config(dict):\n             import json\n             app.config.from_file(\"config.json\", load=json.load)\n \n-            import toml\n-            app.config.from_file(\"config.toml\", load=toml.load)\n+            import tomllib\n+            app.config.from_file(\"config.toml\", load=tomllib.load, text=False)\n \n         :param filename: The path to the data file. This can be an\n             absolute path or relative to the config root path.\n@@ -254,14 +255,18 @@ class Config(dict):\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n         :param silent: Ignore the file if it doesn't exist.\n+        :param text: Open the file in text or binary mode.\n         :return: ``True`` if the file was loaded successfully.\n \n+        .. versionchanged:: 2.3\n+            The ``text`` parameter was added.\n+\n         .. versionadded:: 2.0\n         \"\"\"\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            with open(filename, \"r\" if text else \"rb\") as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\n",
+      "matches_gold_tree": true
+    },
+    {
+      "case": "plus_newline__git_apply_3way",
+      "command": "git apply --verbose --3way /tmp/patch",
+      "patch_file": "baseline_plus_newline.patch",
+      "exit_code": 0,
+      "applied": true,
+      "tree_hash": "5e48be3323e577fa711bdd1b1b27bdf7730534be",
+      "stdout": "EXIT:0\nAPPLIED:1\nTREE_HASH:5e48be3323e577fa711bdd1b1b27bdf7730534be\nGIT_DIFF_BEGIN\n\nGIT_DIFF_END\n",
+      "stderr": "Checking patch src/flask/config.py...\nerror: repository lacks the necessary blob to perform 3-way merge.\nFalling back to direct application...\nApplied patch src/flask/config.py cleanly.\n",
+      "git_diff_head": "\n",
+      "matches_gold_tree": true
+    },
+    {
+      "case": "plus_newline__git_apply_reject",
+      "command": "git apply --verbose --reject /tmp/patch",
+      "patch_file": "baseline_plus_newline.patch",
+      "exit_code": 0,
+      "applied": true,
+      "tree_hash": "5e48be3323e577fa711bdd1b1b27bdf7730534be",
+      "stdout": "EXIT:0\nAPPLIED:1\nTREE_HASH:5e48be3323e577fa711bdd1b1b27bdf7730534be\nGIT_DIFF_BEGIN\ndiff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..5e48be33 100755\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -234,6 +234,7 @@ class Config(dict):\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n         silent: bool = False,\n+        text: bool = True,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n         using the ``load`` parameter. The loaded data is passed to the\n@@ -244,8 +245,8 @@ class Config(dict):\n             import json\n             app.config.from_file(\"config.json\", load=json.load)\n \n-            import toml\n-            app.config.from_file(\"config.toml\", load=toml.load)\n+            import tomllib\n+            app.config.from_file(\"config.toml\", load=tomllib.load, text=False)\n \n         :param filename: The path to the data file. This can be an\n             absolute path or relative to the config root path.\n@@ -254,14 +255,18 @@ class Config(dict):\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n         :param silent: Ignore the file if it doesn't exist.\n+        :param text: Open the file in text or binary mode.\n         :return: ``True`` if the file was loaded successfully.\n \n+        .. versionchanged:: 2.3\n+            The ``text`` parameter was added.\n+\n         .. versionadded:: 2.0\n         \"\"\"\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            with open(filename, \"r\" if text else \"rb\") as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\nGIT_DIFF_END\n",
+      "stderr": "Checking patch src/flask/config.py...\nApplied patch src/flask/config.py cleanly.\n",
+      "git_diff_head": "diff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..5e48be33 100755\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -234,6 +234,7 @@ class Config(dict):\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n         silent: bool = False,\n+        text: bool = True,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n         using the ``load`` parameter. The loaded data is passed to the\n@@ -244,8 +245,8 @@ class Config(dict):\n             import json\n             app.config.from_file(\"config.json\", load=json.load)\n \n-            import toml\n-            app.config.from_file(\"config.toml\", load=toml.load)\n+            import tomllib\n+            app.config.from_file(\"config.toml\", load=tomllib.load, text=False)\n \n         :param filename: The path to the data file. This can be an\n             absolute path or relative to the config root path.\n@@ -254,14 +255,18 @@ class Config(dict):\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n         :param silent: Ignore the file if it doesn't exist.\n+        :param text: Open the file in text or binary mode.\n         :return: ``True`` if the file was loaded successfully.\n \n+        .. versionchanged:: 2.3\n+            The ``text`` parameter was added.\n+\n         .. versionadded:: 2.0\n         \"\"\"\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            with open(filename, \"r\" if text else \"rb\") as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\n",
+      "matches_gold_tree": true
+    },
+    {
+      "case": "plus_newline__patch_fuzz5",
+      "command": "patch --batch --forward --fuzz=5 -p1 -i /tmp/patch",
+      "patch_file": "baseline_plus_newline.patch",
+      "exit_code": 0,
+      "applied": true,
+      "tree_hash": "5e48be3323e577fa711bdd1b1b27bdf7730534be",
+      "stdout": "patching file src/flask/config.py\nEXIT:0\nAPPLIED:1\nTREE_HASH:5e48be3323e577fa711bdd1b1b27bdf7730534be\nGIT_DIFF_BEGIN\ndiff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..5e48be33 100755\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -234,6 +234,7 @@ class Config(dict):\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n         silent: bool = False,\n+        text: bool = True,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n         using the ``load`` parameter. The loaded data is passed to the\n@@ -244,8 +245,8 @@ class Config(dict):\n             import json\n             app.config.from_file(\"config.json\", load=json.load)\n \n-            import toml\n-            app.config.from_file(\"config.toml\", load=toml.load)\n+            import tomllib\n+            app.config.from_file(\"config.toml\", load=tomllib.load, text=False)\n \n         :param filename: The path to the data file. This can be an\n             absolute path or relative to the config root path.\n@@ -254,14 +255,18 @@ class Config(dict):\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n         :param silent: Ignore the file if it doesn't exist.\n+        :param text: Open the file in text or binary mode.\n         :return: ``True`` if the file was loaded successfully.\n \n+        .. versionchanged:: 2.3\n+            The ``text`` parameter was added.\n+\n         .. versionadded:: 2.0\n         \"\"\"\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            with open(filename, \"r\" if text else \"rb\") as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\nGIT_DIFF_END\n",
+      "stderr": "",
+      "git_diff_head": "diff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..5e48be33 100755\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -234,6 +234,7 @@ class Config(dict):\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n         silent: bool = False,\n+        text: bool = True,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n         using the ``load`` parameter. The loaded data is passed to the\n@@ -244,8 +245,8 @@ class Config(dict):\n             import json\n             app.config.from_file(\"config.json\", load=json.load)\n \n-            import toml\n-            app.config.from_file(\"config.toml\", load=toml.load)\n+            import tomllib\n+            app.config.from_file(\"config.toml\", load=tomllib.load, text=False)\n \n         :param filename: The path to the data file. This can be an\n             absolute path or relative to the config root path.\n@@ -254,14 +255,18 @@ class Config(dict):\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n         :param silent: Ignore the file if it doesn't exist.\n+        :param text: Open the file in text or binary mode.\n         :return: ``True`` if the file was loaded successfully.\n \n+        .. versionchanged:: 2.3\n+            The ``text`` parameter was added.\n+\n         .. versionadded:: 2.0\n         \"\"\"\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            with open(filename, \"r\" if text else \"rb\") as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\n",
+      "matches_gold_tree": true
+    }
+  ]
+}
