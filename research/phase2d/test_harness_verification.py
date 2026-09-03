@@ -139,5 +139,28 @@ class TestPytestParsing(unittest.TestCase):
         self.assertEqual(expr, "test_from_toml")
 
 
+class TestSwebenchResolution(unittest.TestCase):
+    def test_resolve_returns_which_when_on_path(self):
+        from research.phase2d.harness import resolve_swebench_executable
+        with patch("research.phase2d.harness.shutil.which", return_value="/usr/local/bin/swebench"):
+            self.assertEqual(resolve_swebench_executable(), "/usr/local/bin/swebench")
+
+    def test_resolve_uses_bin_adjacent_to_executable(self):
+        import tempfile
+        from research.phase2d.harness import resolve_swebench_executable
+        with tempfile.TemporaryDirectory() as td:
+            bin_dir = Path(td) / "bin"
+            bin_dir.mkdir()
+            swe = bin_dir / "swebench"
+            swe.write_text("#!/bin/sh\n")
+            swe.chmod(0o755)
+            py = bin_dir / "python3"
+            py.touch()
+            with patch("research.phase2d.harness.shutil.which", return_value=None), patch(
+                "research.phase2d.harness.sys.executable", str(py)
+            ):
+                self.assertEqual(resolve_swebench_executable(), str(swe))
+
+
 if __name__ == "__main__":
     unittest.main()

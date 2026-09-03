@@ -1,0 +1,71 @@
+{
+  "dataset": "SWE-bench/SWE-bench_Lite",
+  "dataset_alias": "lite",
+  "dataset_version": "SWE-bench/SWE-bench_Lite test via swebench (HuggingFace datasets)",
+  "split": "test",
+  "n": 5,
+  "purpose": "Phase 2D Batch 1 design experiment — 5 new Lite tasks, same set across baseline/current/layered",
+  "selection": "stratified 1 per repo: lexicographically smallest unused instance_id per repository after exclusions, then the 5 lexicographically smallest of those picks",
+  "excluded_from": {
+    "phase2b_partial_executed": [
+      "astropy__astropy-12907",
+      "astropy__astropy-14182",
+      "django__django-10914",
+      "django__django-10924",
+      "django__django-11001",
+      "matplotlib__matplotlib-18869",
+      "matplotlib__matplotlib-22711",
+      "matplotlib__matplotlib-22835",
+      "mwaskom__seaborn-2848",
+      "mwaskom__seaborn-3010",
+      "pallets__flask-4045"
+    ],
+    "phase2c_analysis": "same executed subset as Phase 2B partial",
+    "phase2d_contaminated": [
+      "psf__requests-1963",
+      "pydata__xarray-3364",
+      "pylint-dev__pylint-5859",
+      "pytest-dev__pytest-11143",
+      "scikit-learn__scikit-learn-10297",
+      "sphinx-doc__sphinx-10325",
+      "sympy__sympy-11400"
+    ],
+    "phase2d_smoke": ["pallets__flask-4992"]
+  },
+  "ids": [
+    "astropy__astropy-14365",
+    "django__django-11019",
+    "matplotlib__matplotlib-23299",
+    "mwaskom__seaborn-3190",
+    "pallets__flask-5063"
+  ],
+  "tasks": [
+    {
+      "instance_id": "astropy__astropy-14365",
+      "repo": "astropy/astropy",
+      "base_commit": "7269fa3e33e8d02485a647da91a5a2a60a06af61"
+    },
+    {
+      "instance_id": "django__django-11019",
+      "repo": "django/django",
+      "base_commit": "93e892bb645b16ebaf287beb5fe7f3ffe8d10408"
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23299",
+      "repo": "matplotlib/matplotlib",
+      "base_commit": "3eadeacc06c9f2ddcdac6ae39819faa9fbee9e39"
+    },
+    {
+      "instance_id": "mwaskom__seaborn-3190",
+      "repo": "mwaskom/seaborn",
+      "base_commit": "4a9e54962a29c12a8b103d75f838e0e795a6974d"
+    },
+    {
+      "instance_id": "pallets__flask-5063",
+      "repo": "pallets/flask",
+      "base_commit": "182ce3dd15dfa3537391c3efaf9c3ff407d134d4"
+    }
+  ],
+  "frozen_at": "2026-09-03T13:40:00Z",
+  "frozen_by": "phase2d batch1 design experiment — do not merge into canonical research/phase2d/manifest.json"
+}

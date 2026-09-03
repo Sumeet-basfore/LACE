@@ -1,0 +1,109 @@
+{
+  "dataset": "SWE-bench/SWE-bench_Lite",
+  "dataset_alias": "lite",
+  "dataset_version": "SWE-bench/SWE-bench_Lite test via swebench (HuggingFace datasets)",
+  "split": "test",
+  "n": 10,
+  "purpose": "Phase 2D Ablation 1 \u2014 isolate Current recovery mechanism (baseline/current/minimal/structured)",
+  "selection": "stratified 1 per repo: lexicographically smallest unused instance_id per repository after all prior LACE exclusions, then the 10 lexicographically smallest of those picks",
+  "excluded_from": {
+    "phase2b_partial_executed": [
+      "astropy__astropy-12907",
+      "astropy__astropy-14182",
+      "django__django-10914",
+      "django__django-10924",
+      "django__django-11001",
+      "matplotlib__matplotlib-18869",
+      "matplotlib__matplotlib-22711",
+      "matplotlib__matplotlib-22835",
+      "mwaskom__seaborn-2848",
+      "mwaskom__seaborn-3010",
+      "pallets__flask-4045"
+    ],
+    "phase2d_contaminated": [
+      "psf__requests-1963",
+      "pydata__xarray-3364",
+      "pylint-dev__pylint-5859",
+      "pytest-dev__pytest-11143",
+      "scikit-learn__scikit-learn-10297",
+      "sphinx-doc__sphinx-10325",
+      "sympy__sympy-11400"
+    ],
+    "phase2d_smoke": [
+      "pallets__flask-4992"
+    ],
+    "phase2d_batch1": [
+      "astropy__astropy-14365",
+      "django__django-11019",
+      "matplotlib__matplotlib-23299",
+      "mwaskom__seaborn-3190",
+      "pallets__flask-5063"
+    ]
+  },
+  "ids": [
+    "astropy__astropy-14995",
+    "django__django-11039",
+    "matplotlib__matplotlib-23314",
+    "mwaskom__seaborn-3407",
+    "psf__requests-2148",
+    "pydata__xarray-4094",
+    "pylint-dev__pylint-6506",
+    "pytest-dev__pytest-11148",
+    "scikit-learn__scikit-learn-10508",
+    "sphinx-doc__sphinx-10451"
+  ],
+  "tasks": [
+    {
+      "instance_id": "astropy__astropy-14995",
+      "repo": "astropy/astropy",
+      "base_commit": "b16c7d12ccbc7b2d20364b89fb44285bcbfede54"
+    },
+    {
+      "instance_id": "django__django-11039",
+      "repo": "django/django",
+      "base_commit": "d5276398046ce4a102776a1e67dcac2884d80dfe"
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23314",
+      "repo": "matplotlib/matplotlib",
+      "base_commit": "97fc1154992f64cfb2f86321155a7404efeb2d8a"
+    },
+    {
+      "instance_id": "mwaskom__seaborn-3407",
+      "repo": "mwaskom/seaborn",
+      "base_commit": "515286e02be3e4c0ff2ef4addb34a53c4a676ee4"
+    },
+    {
+      "instance_id": "psf__requests-2148",
+      "repo": "psf/requests",
+      "base_commit": "fe693c492242ae532211e0c173324f09ca8cf227"
+    },
+    {
+      "instance_id": "pydata__xarray-4094",
+      "repo": "pydata/xarray",
+      "base_commit": "a64cf2d5476e7bbda099b34c40b7be1880dbd39a"
+    },
+    {
+      "instance_id": "pylint-dev__pylint-6506",
+      "repo": "pylint-dev/pylint",
+      "base_commit": "0a4204fd7555cfedd43f43017c94d24ef48244a5"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-11148",
+      "repo": "pytest-dev/pytest",
+      "base_commit": "2f7415cfbc4b6ca62f9013f1abd27136f46b9653"
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-10508",
+      "repo": "scikit-learn/scikit-learn",
+      "base_commit": "c753b77ac49e72ebc0fe5e3c2369fe628f975017"
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-10451",
+      "repo": "sphinx-doc/sphinx",
+      "base_commit": "195e911f1dab04b8ddeacbe04b7d214aaf81bb0b"
+    }
+  ],
+  "frozen_at": "2026-09-03T16:30:00Z",
+  "frozen_by": "phase2d ablation1 \u2014 do not merge into canonical manifest.json or batch1-manifest.json"
+}

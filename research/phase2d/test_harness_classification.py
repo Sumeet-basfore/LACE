@@ -18,13 +18,18 @@ from research.phase2d.harness import (
     usage_from_pi,
 )
 
-# Real pi stdout fragment from contaminated Phase 2D run (sympy__sympy-11400)
 RATE_LIMIT_STDOUT = """
 {"type":"agent_start"}
 {"type":"message_end","message":{"role":"assistant","content":[],"api":"openai-responses","provider":"opencode","model":"muse-spark-1.2-contributor-free","usage":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"totalTokens":0,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"error","timestamp":1788355751920,"errorMessage":"OpenAI API error (429): {\\"type\\":\\"FreeUsageLimitError\\",\\"message\\":\\"Error from provider (Console): Rate limit exceeded. Please try again later.\\"}"}}
 {"type":"agent_end","messages":[{"role":"user","content":[{"type":"text","text":"Task: Output ONLY patch in ```diff code block starting with 'diff --git'."}]},{"role":"assistant","content":[],"stopReason":"error","errorMessage":"OpenAI API error (429): {\\"type\\":\\"FreeUsageLimitError\\",\\"message\\":\\"Error from provider (Console): Rate limit exceeded. Please try again later.\\"}"}],"willRetry":false}
 {"type":"agent_settled"}
 """.strip()
+
+# Exact provider_error from aborted Ablation 1 smoke (astropy baseline)
+SMOKE_RATE_LIMIT_ERROR = (
+    'OpenAI API error (429): {"type":"FreeUsageLimitError",'
+    '"message":"Rate limit exceeded. Please try again later."}'
+)
 
 
 class TestProviderFailureClassification(unittest.TestCase):
@@ -48,6 +53,30 @@ class TestProviderFailureClassification(unittest.TestCase):
     def test_classify_auth_error(self):
         fc, _ = classify_provider_failure(1, "HTTP 401 Unauthorized: invalid API key", "", timed_out=False)
         self.assertEqual(fc, "AUTH_ERROR")
+
+    def test_classify_403_auth_error(self):
+        fc, _ = classify_provider_failure(
+            1, "HTTP 403 Forbidden: invalid API key", "", timed_out=False
+        )
+        self.assertEqual(fc, "AUTH_ERROR")
+
+    def test_smoke_429_error_message_is_rate_limit(self):
+        fc, msg = classify_provider_failure(1, SMOKE_RATE_LIMIT_ERROR, "", timed_out=False)
+        self.assertEqual(fc, "PROVIDER_RATE_LIMIT")
+        self.assertEqual(msg, SMOKE_RATE_LIMIT_ERROR)
+
+    def test_smoke_429_not_auth_error_when_issue_body_contains_403(self):
+        """Regression: problem_statement in stdout must not override provider 429."""
+        stdout = (
+            '{"type":"agent_end","messages":[{"role":"user","content":[{"type":"text",'
+            '"text":"Line 403 references HTTP 403 forbidden in issue body"}]}]}\n'
+            '{"type":"message_end","message":{"stopReason":"error","errorMessage":'
+            + json.dumps(SMOKE_RATE_LIMIT_ERROR)
+            + "}}"
+        )
+        fc, _ = classify_provider_failure(1, SMOKE_RATE_LIMIT_ERROR, stdout, timed_out=False)
+        self.assertEqual(fc, "PROVIDER_RATE_LIMIT")
+        self.assertNotEqual(fc, "AUTH_ERROR")
 
     def test_classify_network_error(self):
         fc, _ = classify_provider_failure(1, "fetch failed: ECONNREFUSED 127.0.0.1:8080", "", timed_out=False)

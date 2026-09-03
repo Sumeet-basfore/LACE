@@ -1,0 +1,196 @@
+{
+  "version": "1.0.0",
+  "description": "LACE canonical research corpus export manifest for NotebookLM synchronization",
+  "target_directory": "research/export",
+  "sources": [
+    {
+      "source": "context/terminology.md",
+      "destination": "00-context/terminology.md",
+      "mode": "copy",
+      "category": "context",
+      "description": "Epistemic labels, failure classes, and core pipeline terminology"
+    },
+    {
+      "source": "docs/research-principles.md",
+      "destination": "00-context/research-principles.md",
+      "mode": "copy",
+      "category": "context",
+      "description": "Core research principles, claim labeling rules, and epistemic discipline"
+    },
+    {
+      "source": "research/reports/01-research-synthesis.md",
+      "destination": "01-research/research-synthesis.md",
+      "mode": "copy",
+      "category": "research",
+      "description": "Initial research synthesis and foundation findings"
+    },
+    {
+      "source": "docs/02-competitive-landscape.md",
+      "destination": "01-research/competitive-landscape.md",
+      "mode": "copy",
+      "category": "research",
+      "description": "Analysis of existing coding agent tools and market gaps"
+    },
+    {
+      "source": "docs/03-problem-space.md",
+      "destination": "01-research/problem-space.md",
+      "mode": "copy",
+      "category": "research",
+      "description": "Developer pain taxonomy and problem space definition"
+    },
+    {
+      "source": "docs/04-opportunity.md",
+      "destination": "01-research/opportunity.md",
+      "mode": "copy",
+      "category": "research",
+      "description": "Strategic product opportunity and wedge evaluation"
+    },
+    {
+      "source": "docs/05-product-thesis.md",
+      "destination": "01-research/product-thesis.md",
+      "mode": "copy",
+      "category": "research",
+      "description": "Current product thesis, pre-registered gates, and kill criteria"
+    },
+    {
+      "source": "research/reports/02-validation-synthesis.md",
+      "destination": "02-validation/validation-synthesis.md",
+      "mode": "copy",
+      "category": "validation",
+      "description": "Synthesis of validation experiments and prototype selection"
+    },
+    {
+      "source": "research/reports/07-phase2d-batch1-results.md",
+      "destination": "02-validation/phase2d-batch1-results.md",
+      "mode": "copy",
+      "category": "validation",
+      "description": "Phase 2D Batch 1 empirical results across baseline, current, and layered arms"
+    },
+    {
+      "source": "research/phase2d/ablation1/reports/analysis.md",
+      "destination": "02-validation/ablation1-status.md",
+      "mode": "copy",
+      "category": "validation",
+      "description": "Phase 2D Ablation 1 experimental setup and pre-run status"
+    },
+    {
+      "source": "context/experiment-rules.md",
+      "destination": "02-validation/experiment-methodology.md",
+      "mode": "copy",
+      "category": "validation",
+      "description": "Binding research experiment rules and failure classification protocols"
+    },
+    {
+      "source": "research/market/hypotheses.md",
+      "destination": "03-market/market-hypotheses.md",
+      "mode": "copy",
+      "category": "market",
+      "description": "Market hypotheses and user segment definitions"
+    },
+    {
+      "source": "research/market/survey.md",
+      "destination": "03-market/survey.md",
+      "mode": "copy",
+      "category": "market",
+      "description": "Developer survey questionnaire on agent failure modes"
+    },
+    {
+      "source": "research/market/interview-guide.md",
+      "destination": "03-market/interview-guide.md",
+      "mode": "copy",
+      "category": "market",
+      "description": "Qualitative user interview guide"
+    },
+    {
+      "source": "research/market/results.md",
+      "destination": "03-market/analysis.md",
+      "mode": "copy",
+      "category": "market",
+      "description": "Market analysis framework and preliminary findings"
+    },
+    {
+      "source": "docs/security/threat-model.md",
+      "destination": "04-security/threat-model.md",
+      "mode": "copy",
+      "category": "security",
+      "description": "LACE threat model and security risk taxonomy"
+    },
+    {
+      "source": "docs/security/trust-boundaries.md",
+      "destination": "04-security/trust-boundaries.md",
+      "mode": "copy",
+      "category": "security",
+      "description": "Component trust boundaries and privilege domains"
+    },
+    {
+      "source": "docs/security/data-handling.md",
+      "destination": "04-security/data-handling.md",
+      "mode": "copy",
+      "category": "security",
+      "description": "Data handling policy, secret redaction, and telemetry boundaries"
+    },
+    {
+      "source": "docs/security/security-requirements.md",
+      "destination": "04-security/security-requirements.md",
+      "mode": "copy",
+      "category": "security",
+      "description": "System security specifications and sandboxing requirements"
+    },
+    {
+      "source": "docs/core/concepts.md",
+      "destination": "05-core-model/concepts.md",
+      "mode": "copy",
+      "category": "core-model",
+      "description": "Core entity model (Task, Attempt, Verification, Evidence, Outcome, Cost)"
+    },
+    {
+      "source": "docs/core/lifecycle.md",
+      "destination": "05-core-model/lifecycle.md",
+      "mode": "copy",
+      "category": "core-model",
+      "description": "Task lifecycle state machine and transition invariants"
+    },
+    {
+      "source": "docs/core/event-model.md",
+      "destination": "05-core-model/event-model.md",
+      "mode": "copy",
+      "category": "core-model",
+      "description": "Append-only JSONL event model specification"
+    },
+    {
+      "source": "docs/core/recovery-policy.md",
+      "destination": "05-core-model/recovery-policy.md",
+      "mode": "copy",
+      "category": "core-model",
+      "description": "Failure-aware recovery dispatch and policy rules"
+    },
+    {
+      "source": "docs/core/measurement-contract.md",
+      "destination": "05-core-model/measurement-contract.md",
+      "mode": "copy",
+      "category": "core-model",
+      "description": "Accounting contract for tokens, latency, and success metrics"
+    },
+    {
+      "source": "context/decisions.md",
+      "destination": "06-decisions/decisions.md",
+      "mode": "copy",
+      "category": "decisions",
+      "description": "Canonical project decision log (D-001 through D-010)"
+    },
+    {
+      "source": "docs/open-questions.md",
+      "destination": "06-decisions/open-questions.md",
+      "mode": "copy",
+      "category": "decisions",
+      "description": "Catalog of active technical and market open questions"
+    },
+    {
+      "source": "docs/changelog.md",
+      "destination": "06-decisions/changelog.md",
+      "mode": "copy",
+      "category": "decisions",
+      "description": "Chronological history of pivots, milestones, and architectural shifts"
+    }
+  ]
+}

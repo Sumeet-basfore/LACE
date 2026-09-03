@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+*.egg-info/
+.venv/
+venv/
+
+# Local downloads / binaries
+*.whl
+
+# SWE-bench evaluator working tree (regenerated per eval)
+logs/
+
+# Provider evaluation report copies dropped at repo root by swebench
+/muse-spark-*.json
+
+# Experiment raw outputs — forensic evidence, keep locally, do not commit
+research/**/raw/
+research/**/raw-*/
+research/**/runs/
+research/**/run-state*/
+research/**/logs/
+
+# Generated per-attempt artifacts under research (when outside raw/ trees)
+research/**/transcript_*.txt
+research/**/*.eval.json
+research/**/*.raw.patch
+research/**/*.normalized.patch
+research/**/*.apply_check.log
+
+# Curated export is explicitly version-controlled
+!research/export/
+!research/export/**
+
+# F02 pilot repo checkout (local clone)
+research/F02/pilot/repo/
+
+# Editor / OS
+.commandcode
+.DS_Store
+.cache/
+
+# NOTE: Do NOT ignore canonical research artifacts:
+#   **/manifest.json, batch*-manifest.json
+#   protocol.md, protocol.hash, metrics.md, experiment-metadata.json
+#   research/reports/*.md, research/**/analysis/*.md
+#   research/phase2d/analysis/*-results.json (structured analysis outputs)
+#   research/experiment/scale/aggregate.json, preflight*.json

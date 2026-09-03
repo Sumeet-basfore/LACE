@@ -1,0 +1,49 @@
+{
+  "manifest_hash": "533b1ea1877450a8",
+  "baseline": [
+    {
+      "instance_id": "astropy__astropy-14995",
+      "repo": "astropy/astropy",
+      "base_commit": "b16c7d12ccbc7b2d20364b89fb44285bcbfede54",
+      "condition": "baseline",
+      "model": "muse-spark-1.2-contributor-free",
+      "attempts": 1,
+      "retries": 0,
+      "resolved": false,
+      "infra_failure": false,
+      "failure_class": "PROVIDER_RATE_LIMIT",
+      "verification_layer": "full",
+      "totalTokens": 0,
+      "cacheRead": 0,
+      "latency_seconds": 3.49,
+      "pi_latency": 3.49,
+      "verification_latency": 0.0,
+      "started_at": "2026-09-03T17:13:30.778694Z",
+      "finished_at": "2026-09-03T17:13:34.267396Z",
+      "patch_empty": true,
+      "token_usage": {
+        "input": 0,
+        "output": 0,
+        "totalTokens": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "cost": 0
+      },
+      "feedback_bytes": 0,
+      "evidence_categories": [],
+      "initially_resolved": false,
+      "recovered": false,
+      "failed_after_retry": false,
+      "provider_failure": "PROVIDER_RATE_LIMIT",
+      "provider_error": "OpenAI API error (429): {\"type\":\"FreeUsageLimitError\",\"message\":\"Rate limit exceeded. Please try again later.\"}",
+      "evaluation_run_id": null,
+      "evaluation_fresh": false,
+      "evaluation_cache_hit": false,
+      "patch_normalized": true
+    }
+  ],
+  "current": [],
+  "minimal": [],
+  "structured": []
+}

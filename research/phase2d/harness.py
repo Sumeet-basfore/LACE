@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 import json, subprocess, pathlib, time, datetime, hashlib, re, tempfile, shutil, glob, os, sys, uuid
 
+_ROOT = pathlib.Path(__file__).resolve().parents[2]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+from research.phase2d.feedback_policy import build_retry_feedback, is_non_retryable_provider
+
 MANIFEST = pathlib.Path("research/phase2d/manifest.json")
 DATASET = "lite"
 MODEL = "muse-spark-1.2-contributor-free"
@@ -8,7 +14,29 @@ PROVIDER = "opencode"
 OUT_ROOT = pathlib.Path("research/phase2d/raw")
 RESULTS = pathlib.Path("research/phase2d/run-state")
 MANIFEST_HASH = hashlib.sha256(MANIFEST.read_bytes()).hexdigest()[:16]
-SWE = shutil.which("swebench") or "/tmp/venv2/bin/swebench"
+
+
+def resolve_swebench_executable():
+    """Locate swebench CLI: PATH, then bin dir of sys.executable (no resolve — venv python may symlink)."""
+    found = shutil.which("swebench")
+    if found:
+        return found
+    bin_dir = pathlib.Path(sys.executable).parent
+    adjacent = bin_dir / "swebench"
+    if adjacent.exists():
+        return str(adjacent)
+    venv = os.environ.get("VIRTUAL_ENV")
+    if venv:
+        venv_swe = pathlib.Path(venv) / "bin" / "swebench"
+        if venv_swe.exists():
+            return str(venv_swe)
+    legacy = pathlib.Path("/tmp/venv2/bin/swebench")
+    if legacy.exists():
+        return str(legacy)
+    return "swebench"
+
+
+SWE = resolve_swebench_executable()
 
 
 def configure_final_one_task_run():
@@ -18,6 +46,49 @@ def configure_final_one_task_run():
     OUT_ROOT = pathlib.Path("research/phase2d/raw-final-one-task")
     RESULTS = pathlib.Path("research/phase2d/run-state-final-one-task")
     MANIFEST_HASH = hashlib.sha256(MANIFEST.read_bytes()).hexdigest()[:16]
+
+
+def configure_batch1_run():
+    """Phase 2D Batch 1 design experiment: 5 new Lite tasks, fresh output tree."""
+    global MANIFEST, OUT_ROOT, RESULTS, MANIFEST_HASH
+    MANIFEST = pathlib.Path("research/phase2d/batch1-manifest.json")
+    OUT_ROOT = pathlib.Path("research/phase2d/raw-batch1")
+    RESULTS = pathlib.Path("research/phase2d/run-state-batch1")
+    MANIFEST_HASH = hashlib.sha256(MANIFEST.read_bytes()).hexdigest()[:16]
+
+
+def configure_ablation1_run():
+    """Phase 2D Ablation 1: isolate Current recovery mechanism (4 arms)."""
+    global MANIFEST, OUT_ROOT, RESULTS, MANIFEST_HASH
+    MANIFEST = pathlib.Path("research/phase2d/ablation1/manifest.json")
+    OUT_ROOT = pathlib.Path("research/phase2d/ablation1/raw")
+    RESULTS = pathlib.Path("research/phase2d/run-state-ablation1")
+    MANIFEST_HASH = hashlib.sha256(MANIFEST.read_bytes()).hexdigest()[:16]
+
+
+def configure_ablation1_smoke_run():
+    """Smoke: first task from ablation1 manifest only."""
+    global MANIFEST, MANIFEST_HASH
+    configure_ablation1_run()
+    manifest_data = json.loads(MANIFEST.read_text())
+    smoke_manifest = {
+        **manifest_data,
+        "n": 1,
+        "ids": manifest_data["ids"][:1],
+        "tasks": manifest_data["tasks"][:1],
+        "purpose": "Ablation 1 smoke — first manifest task only",
+    }
+    smoke_path = OUT_ROOT.parent / "manifest-smoke.json"
+    smoke_path.write_text(json.dumps(smoke_manifest, indent=2))
+    MANIFEST = smoke_path
+    MANIFEST_HASH = hashlib.sha256(MANIFEST.read_bytes()).hexdigest()[:16]
+
+
+ABLATION1_ARMS = ("baseline", "current", "minimal", "structured")
+
+
+def ablation_max_attempts(arm):
+    return {"baseline": 1, "current": 3, "minimal": 2, "structured": 2}[arm]
 
 ZERO_USAGE = {"input": 0, "output": 0, "totalTokens": 0, "cacheRead": 0, "cacheWrite": 0, "reasoning": 0, "cost": 0}
 
@@ -74,6 +145,54 @@ def extract_pi_errors(stdout):
     return out
 
 
+def _primary_provider_text(stderr, pi_errors):
+    """Provider-origin text only — excludes problem_statement echoed in pi stdout."""
+    parts = []
+    if stderr and stderr.strip():
+        parts.append(stderr.strip())
+    parts.extend(pi_errors or [])
+    return "\n".join(parts)
+
+
+def _is_rate_limit(text):
+    tl = (text or "").lower()
+    if not tl:
+        return False
+    if re.search(r"(?:error\s*)?\(429\)|\b429\b|http\s*429|status\s*429", tl):
+        return True
+    return any(x in tl for x in (
+        "freeusagelimiterror",
+        "rate limit",
+        "rate_limit",
+        "too many requests",
+        "quota exceeded",
+        "usage limit",
+    ))
+
+
+def _is_auth_error(text):
+    tl = (text or "").lower()
+    if not tl:
+        return False
+    if re.search(r"(?:error\s*)?\(401\)|\b401\b|http\s*401|status\s*401", tl):
+        if any(x in tl for x in (
+            "unauthorized", "authentication", "invalid api key", "api key", "auth error",
+        )):
+            return True
+        if "error" in tl or "http" in tl:
+            return True
+    if re.search(r"(?:error\s*)?\(403\)|\b403\b|http\s*403|status\s*403", tl):
+        if any(x in tl for x in ("forbidden", "authentication", "invalid api key", "api key", "auth error")):
+            return True
+        if "error" in tl or "http" in tl:
+            return True
+    if any(x in tl for x in (
+        "unauthorized", "invalid api key", "auth error",
+    )):
+        return True
+    return False
+
+
 def classify_provider_failure(exit_code, stderr, stdout, timed_out=False):
     """
     Classify pi subprocess / provider failures.
@@ -82,9 +201,10 @@ def classify_provider_failure(exit_code, stderr, stdout, timed_out=False):
     if timed_out:
         return "TIMEOUT", stderr or "pi subprocess timed out"
 
+    pi_errors = extract_pi_errors(stdout or "")
+    primary = _primary_provider_text(stderr, pi_errors)
     combined = "\n".join(filter(None, [stderr or "", stdout or ""]))
     combined_l = combined.lower()
-    pi_errors = extract_pi_errors(stdout or "")
     message = pi_errors[0] if pi_errors else (stderr or "").strip()
     if pi_errors:
         message = pi_errors[0]
@@ -98,21 +218,15 @@ def classify_provider_failure(exit_code, stderr, stdout, timed_out=False):
     if not has_provider_signal:
         return None, None
 
-    # Auth failures
-    if any(x in combined_l for x in (
-        "401", "403", "unauthorized", "authentication", "invalid api key",
-        "api key", "auth error", "forbidden",
-    )):
-        return "AUTH_ERROR", message
-
-    # Rate limits (including opencode FreeUsageLimitError)
-    if any(x in combined_l for x in (
-        "429", "freeusagelimiterror", "rate limit", "rate_limit",
-        "too many requests", "quota exceeded", "usage limit",
-    )):
+    # Rate limits first — classify from provider text only (not problem_statement in stdout).
+    if _is_rate_limit(primary):
         return "PROVIDER_RATE_LIMIT", message
 
-    # Network failures
+    # Auth failures — provider text only; never match bare 401/403 in issue bodies.
+    if _is_auth_error(primary):
+        return "AUTH_ERROR", message
+
+    # Network failures (full combined OK — unlikely in issue text)
     if any(x in combined_l for x in (
         "econnrefused", "enotfound", "etimedout", "eai_again",
         "network error", "connection refused", "connection reset",
@@ -226,8 +340,16 @@ def usage_from_pi(last_usage):
     }
 
 
-def pi_patch(problem_statement, repo, iid, feedback=None, targeted=False, failing_test=None):
-    if targeted and failing_test:
+def pi_patch(problem_statement, repo, iid, feedback=None, targeted=False, failing_test=None, retry_only=False):
+    if retry_only:
+        base = (
+            f"Fix GitHub issue {iid} in {repo}.\n"
+            f"Previous patch failed verification.\n\n"
+            f"{feedback}\n\n"
+            "Produce a corrected unified diff only in a ```diff code block starting with 'diff --git'. "
+            "No explanation outside the patch block. Must apply with 'git apply'."
+        )
+    elif targeted and failing_test:
         base = (
             f"Fix GitHub issue {iid} ({repo}). Failing test: {failing_test}\n"
             f"Feedback: {feedback}\nPrevious patch failed this test. "
@@ -751,6 +873,8 @@ def run():
             if arm == "baseline":
                 patch, usage, transcript, pi_lat, err, timed_out, provider_failure, raw_patch = pi_patch(ps, repo, iid)
                 write_transcript(OUT_ROOT / arm / f"transcript_{iid}.txt", patch, transcript, err, provider_failure, raw_patch=raw_patch)
+                pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.raw.patch").write_text(raw_patch or "")
+                pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.normalized.patch").write_text(patch or "")
                 ver_start = time.monotonic()
                 if provider_failure:
                     resolved, infra, report, eval_log, ver_lat = False, False, None, "", 0.0
@@ -816,6 +940,8 @@ def run():
                     patches.append(patch)
                     raw_patches.append(raw_patch)
                     transcripts.append(transcript)
+                    pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.raw.patch").write_text(raw_patch or "")
+                    pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.normalized.patch").write_text(patch or "")
                     pi_total += pi_lat
                     if provider_failure:
                         failure_class = provider_failure["failure_class"]
@@ -914,6 +1040,8 @@ def run():
                     patches.append(patch)
                     raw_patches.append(raw_patch)
                     transcripts.append(transcript)
+                    pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.raw.patch").write_text(raw_patch or "")
+                    pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.normalized.patch").write_text(patch or "")
                     pi_total += pi_lat
                     if provider_failure:
                         failure_class = provider_failure["failure_class"]
@@ -1003,6 +1131,9 @@ def run():
                     "finished_at": datetime.datetime.utcnow().isoformat() + "Z",
                     "patch_empty": not bool(patches[-1].strip()) if patches else True,
                     "token_usage": total_usage,
+                    "failing_test": failing_test,
+                    "assertion": assertion,
+                    "traceback": (traceback or "")[-2000:],
                     **result_provider_fields(provider_failure),
                     **evaluation_result_fields(eval_meta),
                     **(patch_normalization_fields(raw_patches[-1]) if raw_patches else {"patch_normalized": False}),
@@ -1011,6 +1142,271 @@ def run():
                 (OUT_ROOT / arm / "result.json").write_text(json.dumps(results[arm], indent=2))
                 print(f"  layered resolved={resolved} attempts={attempts} recovered={recovered} fc={failure_class} tokens={total_usage['totalTokens']} lat={total_lat:.1f}s")
     agg = {"manifest_hash": MANIFEST_HASH, "baseline": results["baseline"], "current": results["current"], "layered": results["layered"]}
+    (OUT_ROOT / "results.json").write_text(json.dumps(agg, indent=2))
+    print("\nDone")
+
+
+def _ablation_stop_reason(rec):
+    """Fail-closed stop if experiment integrity breaks."""
+    fc = rec.get("failure_class")
+    if fc == "PROVIDER_RATE_LIMIT":
+        return "PROVIDER_RATE_LIMIT detected — stop immediately"
+    if rec.get("evaluation_cache_hit"):
+        return "EVALUATION_CACHE_HIT detected — stop immediately"
+    if fc in ("EVALUATION_CACHE_HIT", "EVALUATION_INVALID"):
+        return f"{fc} detected — stop immediately"
+    if rec.get("provider_failure") and is_non_retryable_provider(rec["provider_failure"]):
+        pass  # isolated provider failure is OK
+    return None
+
+
+def _collect_retry_evidence(iid, patch, fail_to_pass):
+    """Cheap evidence for minimal/structured retry feedback."""
+    fmt = validate_patch_format(patch)
+    apply_log = ""
+    if not fmt:
+        chk, apply_log = apply_check_in_testbed(iid, patch)
+        if chk == "INFRA_FAILURE":
+            return fmt, chk, apply_log, "", "", "", True
+        if chk:
+            return fmt, chk, apply_log, "", "", "", False
+    t_pass, ft, ass, tb, t_log, _t_lat, t_infra = targeted_eval(iid, patch, fail_to_pass)
+    if t_infra:
+        return fmt, "INFRA_FAILURE", apply_log, ft, ass, tb, True
+    if not t_pass:
+        return fmt, None, apply_log, ft, ass, tb, False
+    return fmt, None, apply_log, ft, ass, tb, False
+
+
+def _ablation_outcome_fields(attempts, resolved, initially_resolved):
+    recovered = attempts > 1 and resolved
+    failed_after_retry = attempts > 1 and not resolved
+    return {
+        "initially_resolved": initially_resolved,
+        "recovered": recovered,
+        "failed_after_retry": failed_after_retry,
+    }
+
+
+def run_ablation1():
+    ids = load_manifest()
+    for arm in ABLATION1_ARMS:
+        (OUT_ROOT / arm).mkdir(parents=True, exist_ok=True)
+        (OUT_ROOT / arm / "logs").mkdir(parents=True, exist_ok=True)
+        (RESULTS / arm).mkdir(parents=True, exist_ok=True)
+    from swebench.harness.utils import load_swebench_dataset
+    ds = load_swebench_dataset(DATASET, split="test", instance_ids=ids)
+    id2inst = {d["instance_id"]: d for d in ds}
+    results = {arm: [] for arm in ABLATION1_ARMS}
+    for arm in ABLATION1_ARMS:
+        p = OUT_ROOT / arm / "result.json"
+        if p.exists():
+            try:
+                results[arm] = json.loads(p.read_text())
+                print(f"Resuming {arm}: {len(results[arm])} done")
+            except json.JSONDecodeError:
+                results[arm] = []
+
+    for iid in ids:
+        inst = id2inst[iid]
+        ps = inst["problem_statement"]
+        repo = inst["repo"]
+        fail_to_pass = inst["FAIL_TO_PASS"]
+        if isinstance(fail_to_pass, str):
+            fail_to_pass = json.loads(fail_to_pass)
+
+        for arm in ABLATION1_ARMS:
+            if any(r["instance_id"] == iid for r in results[arm]):
+                print(f"Skipping {iid} [{arm}] already done")
+                continue
+            print(f"\n=== {iid} [{arm}] ===")
+            task_start = time.monotonic()
+            task_iso = datetime.datetime.utcnow().isoformat() + "Z"
+            max_attempts = ablation_max_attempts(arm)
+
+            attempts = 0
+            total_usage = dict(ZERO_USAGE)
+            patches = []
+            raw_patches = []
+            transcripts = []
+            resolved = False
+            initially_resolved = False
+            infra = False
+            provider_failure = None
+            failure_class = "NONE"
+            feedback_meta = {}
+            ver_total = 0.0
+            pi_total = 0.0
+            eval_meta = {
+                "evaluation_run_id": None,
+                "evaluation_fresh": False,
+                "evaluation_cache_hit": False,
+            }
+            feedback = None
+
+            for attempt in range(1, max_attempts + 1):
+                attempts = attempt
+                use_retry_only = attempt > 1 and arm in ("minimal", "structured")
+                patch, usage, transcript, pi_lat, err, timed_out, provider_failure, raw_patch = pi_patch(
+                    ps, repo, iid,
+                    feedback=feedback,
+                    retry_only=use_retry_only,
+                )
+                patches.append(patch)
+                raw_patches.append(raw_patch)
+                transcripts.append(transcript)
+                pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.raw.patch").write_text(raw_patch or "")
+                pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.normalized.patch").write_text(patch or "")
+                pi_total += pi_lat
+
+                if provider_failure:
+                    failure_class = provider_failure["failure_class"]
+                    break
+
+                for k in total_usage:
+                    total_usage[k] += usage.get(k, 0)
+
+                if arm == "baseline":
+                    write_transcript(
+                        OUT_ROOT / arm / f"transcript_{iid}.txt",
+                        patch, transcript, err, provider_failure, raw_patch=raw_patch,
+                    )
+
+                resolved, infra, report, eval_log, ver_lat, eval_meta = full_eval(iid, patch, arm, attempt=attempt)
+                ver_total += ver_lat
+                if report:
+                    pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.eval.json").write_text(
+                        json.dumps(report, indent=2)
+                    )
+                pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.log").write_text(eval_log)
+
+                if eval_fc := evaluation_failure_class(eval_meta):
+                    failure_class = eval_fc
+                    break
+
+                if resolved:
+                    failure_class = "NONE"
+                    if attempt == 1:
+                        initially_resolved = True
+                    break
+                if infra:
+                    failure_class = "INFRA_FAILURE"
+                    break
+
+                if attempt == max_attempts:
+                    failure_class = "TEST_FAILURE"
+                    break
+
+                # Build retry feedback
+                fmt_err = validate_patch_format(patch)
+                apply_chk = None
+                apply_log = ""
+                ft = ass = tb = ""
+                if arm in ("minimal", "structured"):
+                    fmt_err, apply_chk, apply_log, ft, ass, tb, ev_infra = _collect_retry_evidence(
+                        iid, patch, fail_to_pass,
+                    )
+                    if ev_infra:
+                        failure_class = "INFRA_FAILURE"
+                        infra = True
+                        break
+                feedback, feedback_meta = build_retry_feedback(
+                    arm if arm in ("current", "minimal", "structured") else "current",
+                    patch=patch,
+                    eval_log=eval_log,
+                    failing_test=ft,
+                    assertion=ass,
+                    traceback=tb,
+                    apply_log=apply_log,
+                    patch_format=fmt_err,
+                    apply_check=apply_chk,
+                    eval_invalid_reason=eval_meta.get("evaluation_invalid_reason"),
+                    resolved=resolved,
+                    infra=infra,
+                )
+                if feedback is None or not feedback_meta.get("retryable", True):
+                    failure_class = feedback_meta.get("failure_class", "TEST_FAILURE")
+                    break
+                pathlib.Path(OUT_ROOT / arm / "logs" / f"{iid}.a{attempt}.feedback.json").write_text(
+                    json.dumps({"text": feedback, **feedback_meta}, indent=2)
+                )
+
+            total_lat = time.monotonic() - task_start
+            if arm != "baseline":
+                pathlib.Path(OUT_ROOT / arm / f"transcript_{iid}.txt").write_text(
+                    "\n\n===== ATTEMPT =====\n\n".join(
+                        f"ATTEMPT {i + 1} PATCH:\n{p[:8000]}\nTRANSCRIPT:\n{t[:4000]}"
+                        for i, p, t in zip(range(len(raw_patches)), raw_patches, transcripts)
+                    )
+                )
+
+            if provider_failure:
+                fc = provider_failure["failure_class"]
+            elif not patches or not patches[-1].strip():
+                fc = "EMPTY_OUTPUT"
+            else:
+                fc = failure_class
+
+            outcome = _ablation_outcome_fields(attempts, resolved, initially_resolved)
+            rec = {
+                "instance_id": iid,
+                "repo": repo,
+                "base_commit": inst["base_commit"],
+                "condition": arm,
+                "model": MODEL,
+                "attempts": attempts,
+                "retries": attempts - 1,
+                "resolved": resolved,
+                "infra_failure": infra,
+                "failure_class": fc,
+                "verification_layer": "full",
+                "totalTokens": total_usage["totalTokens"],
+                "cacheRead": total_usage["cacheRead"],
+                "latency_seconds": round(total_lat, 2),
+                "pi_latency": round(pi_total, 2),
+                "verification_latency": round(ver_total, 2),
+                "started_at": task_iso,
+                "finished_at": datetime.datetime.utcnow().isoformat() + "Z",
+                "patch_empty": not bool(patches[-1].strip()) if patches else True,
+                "token_usage": total_usage,
+                "feedback_bytes": feedback_meta.get("feedback_bytes", 0),
+                "evidence_categories": feedback_meta.get("evidence_categories", []),
+                **outcome,
+                **result_provider_fields(provider_failure),
+                **(
+                    evaluation_result_fields(eval_meta)
+                    if not provider_failure
+                    else {
+                        "evaluation_run_id": None,
+                        "evaluation_fresh": False,
+                        "evaluation_cache_hit": False,
+                    }
+                ),
+                **(patch_normalization_fields(raw_patches[-1]) if raw_patches else {"patch_normalized": False}),
+            }
+            if feedback_meta:
+                rec["retry_failure_class"] = feedback_meta.get("failure_class")
+                rec["feedback_policy"] = feedback_meta.get("policy", arm)
+
+            results[arm].append(rec)
+            (OUT_ROOT / arm / "result.json").write_text(json.dumps(results[arm], indent=2))
+            print(
+                f"  {arm} resolved={resolved} attempts={attempts} "
+                f"initial={outcome['initially_resolved']} recovered={outcome['recovered']} "
+                f"tokens={total_usage['totalTokens']} lat={total_lat:.1f}s fc={fc}"
+            )
+
+            stop = _ablation_stop_reason(rec)
+            if stop:
+                print(f"\nSTOP: {stop}")
+                agg = {"manifest_hash": MANIFEST_HASH, **results}
+                (OUT_ROOT.parent / "reports" / "results.json").write_text(json.dumps(agg, indent=2))
+                raise SystemExit(1)
+
+    agg = {"manifest_hash": MANIFEST_HASH, **results}
+    reports_dir = OUT_ROOT.parent / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    (reports_dir / "results.json").write_text(json.dumps(agg, indent=2))
     (OUT_ROOT / "results.json").write_text(json.dumps(agg, indent=2))
     print("\nDone")
 
@@ -1058,4 +1454,14 @@ if __name__ == "__main__":
         raise SystemExit(smoke_patch_extraction())
     if len(sys.argv) > 1 and sys.argv[1] == "final-one-task":
         configure_final_one_task_run()
+    if len(sys.argv) > 1 and sys.argv[1] == "batch1":
+        configure_batch1_run()
+    if len(sys.argv) > 1 and sys.argv[1] == "ablation1":
+        configure_ablation1_run()
+        run_ablation1()
+        raise SystemExit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == "ablation1-smoke":
+        configure_ablation1_smoke_run()
+        run_ablation1()
+        raise SystemExit(0)
     run()

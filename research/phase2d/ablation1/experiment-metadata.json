@@ -1,0 +1,29 @@
+{
+  "experiment": "phase2d-ablation1",
+  "frozen_at": "2026-09-03T16:30:00Z",
+  "manifest_path": "research/phase2d/ablation1/manifest.json",
+  "manifest_sha256": "d0ecdb63ad1fc3ae1961852f5df71c370343239864ccd508dd859c901e4d2253",
+  "manifest_hash_short": "d0ecdb63ad1fc3ae",
+  "protocol_path": "research/phase2d/ablation1/protocol.md",
+  "protocol_sha256": "d8d2aabc3c5b20a49ed98b355343737f72ad30cb717ccb64e270d437c4e037fa",
+  "protocol_hash_short": "d8d2aabc3c5b20a4",
+  "harness_path": "research/phase2d/harness.py",
+  "harness_commit": "4788c3844068b46f1b51394538e8b1b022a693e3",
+  "model": "muse-spark-1.2-contributor-free",
+  "provider": "opencode",
+  "dataset": "lite",
+  "arms": [
+    "baseline",
+    "current",
+    "minimal",
+    "structured"
+  ],
+  "n_tasks": 10,
+  "status": "implemented_not_executed",
+  "validation": {
+    "focused_tests_passed": 59,
+    "focused_tests_errors": 1,
+    "focused_tests_error_note": "pre-existing docker integration test requires swebench runtime",
+    "smoke_patch": "pass"
+  }
+}
